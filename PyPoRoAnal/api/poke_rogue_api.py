@@ -126,7 +126,8 @@ class PokeRogueAPI:
         """
         self.session.headers.update(headers)
 
-    def generate_random_headers(self) -> Dict[str, str]:
+    @staticmethod
+    def generate_random_headers() -> Dict[str, str]:
         """
         Generates random headers for the session.
 
@@ -269,6 +270,33 @@ class PokeRogueAPI:
                 ).status_code
                 == 200
             )
+
+        except Exception as e:
+            logger.exception(e)
+            return False
+
+    @classmethod
+    def create_account(cls, username: str, password: str) -> bool:
+        """
+        Updates data for a specific slot on the API.
+
+        Source: https://github.com/pagefaultgames/pokerogue/blob/12bd22f2ca2204af125a4faab985c4d2b9017aea/src/ui/registration-form-ui-handler.ts#L81
+
+        Args:
+            slot_index (int): The index of the slot to update.
+            data (Dict[str, Any]): The data to update for the slot.
+
+        Returns:
+            bool: True if the update is successful, False otherwise.
+        """
+        try:
+            response = requests.post(
+                urljoin(cls.BASE_URL, "account/register"),
+                data={"username": username, "password": password},
+                headers=cls.generate_random_headers(),
+            )
+            response.raise_for_status()
+            return response.status_code == 200
 
         except Exception as e:
             logger.exception(e)
