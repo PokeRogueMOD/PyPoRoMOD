@@ -6,7 +6,11 @@
 
 # PyPoRoAnal
 
-Welcome to the PyPoRoAnal! This project aims to analyze and modify the account and slot data. I just started with it, so stay tuned for new updates, currently it does nothing since im still working on the api and account manager and implementing the python version of the TypeScript source classes i need...
+Welcome to the PyPoRoAnal! This project aims to analyze and modify the account and slot data. I just finished the API and a basic TypeScript to Python translator for Enums. The next step will be adding features, so stay tuned for new updates...
+
+## Feature
+
+-   API to interact with the game server.
 
 ## [Video Tutorial (Old)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
 
