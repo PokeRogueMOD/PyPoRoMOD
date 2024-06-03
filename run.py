@@ -1,14 +1,16 @@
-from PyPoRoAnal import WSpecies, PokeRogueAPI, JSBigInt
+from PyPoRoAnal import WSpecies, PokeRogueAPI, JSBigInt, AccountManager
 
-username = input("Username: ")
-password = input("Password: ")
+# username = input("Username: ")
+# password = input("Password: ")
 
-test = PokeRogueAPI(username, password)
-trainer = test.get_trainer()
-print(f"{test.set_trainer(trainer) = }")
+# test = PokeRogueAPI(username, password)
+# trainer = test.get_trainer()
+# print(f"{test.set_trainer(trainer) = }")
 
-slot = test.get_slot(0)
-print(f"{test.set_slot(0, slot) = }")
+# slot = test.get_slot(0)
+# print(f"{test.set_slot(0, slot) = }")
 
 # test = PokeRogueAPI.create_account("NewAccountName", "NewAccountPassword")
 # print(test)
+
+AccountManager().run()
