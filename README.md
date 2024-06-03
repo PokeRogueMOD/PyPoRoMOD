@@ -10,7 +10,11 @@ Welcome to the PyPoRoAnal! This project aims to analyze and modify the account a
 
 ## Feature
 
--   API to interact with the game server.
+-   API to interact with the game server (online and local)
+-   Account Manager
+  -    Add Accounts
+  -    Manage Accounts
+  -    Create PokeRogue Accounts
 
 ## [Video Tutorial (Old)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
 
