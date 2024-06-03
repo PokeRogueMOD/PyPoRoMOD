@@ -4,7 +4,7 @@
 > [!CAUTION]
 > Since there was some unnecessary drama regarding the so-called `RogueEditor`, I decided to just make my own account modification tool from scratch, based only on the [source code](https://github.com/pagefaultgames/pokerogue). My goal is to focus on adding new features that do not exist yet, after I added all base functionalitys, but using custom python classes to ensure I only generate valid data, not exceeding any limits.
 
-# PokeRogue Bot / Toolkit
+# PyPoRoAnal
 
 Welcome to the PyPoRoAnal! This project aims to analyze and modify the account and slot data. I just started with it, so stay tuned for new updates, currently it does nothing since im still working on the api and account manager and implementing the python version of the TypeScript source classes i need...
 
