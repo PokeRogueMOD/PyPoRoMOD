@@ -1,4 +1,4 @@
-from PyPoRoAnal import WSpecies, PokeRogueAPI
+from PyPoRoAnal import WSpecies, PokeRogueAPI, JSBigInt
 
 username = input("Username: ")
 password = input("Password: ")
