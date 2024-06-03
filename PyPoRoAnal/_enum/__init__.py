@@ -1,2 +1,2 @@
 from .gen import *
-from .species import WSpecies
+from .w_species import WSpecies
