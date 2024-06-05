@@ -1,8 +1,9 @@
 from loguru import logger
 from getpass import getpass
 
-from ..utils import ExitCommandLoop, AccountDeleted
-from ..poke_rogue.poke_rogue import PokeRogue
+from PyPoRoMOD.utils import ExitCommandLoop, AccountDeleted
+from PyPoRoMOD.poke_rogue.poke_rogue import PokeRogue
+from PyPoRoMOD.api.poke_rogue_api import LoginError
 
 
 class AccountActions:
@@ -66,9 +67,14 @@ class AccountActions:
         return
 
     def run_account_modder(self):
-        modder = PokeRogue(*self.get_account_credentials(), self.get_name_string())
-        modder.run()
-        return
+        try:
+            modder = PokeRogue(*self.get_account_credentials(), self.get_name_string())
+            modder.run()
+        except LoginError:
+            logger.debug("Could not login, going back to main Menu.")
+            raise ExitCommandLoop
+        except ExitCommandLoop:
+            logger.info("Closing the account settings.")
 
     def account_settings(self):
         self.loop = self._LOOP.register_loop(

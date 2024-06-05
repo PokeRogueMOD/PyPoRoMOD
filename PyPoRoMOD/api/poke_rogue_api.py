@@ -169,7 +169,10 @@ class PokeRogueAPI:
             response = self.post(
                 "account/login",
                 data={"username": self.username, "password": self.password},
+                params={}
             )
+            logger.debug(response)
+
             self.headers["authorization"] = response.json()["token"]
 
         except Exception as e:
@@ -187,9 +190,21 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The trainer data, or None if an error occurs.
         """
         try:
-            trainer = self.get("savedata/get").json()
+            response = self.get("savedata/get")
+            logger.debug(response)
+
+            trainer: dict = response.json()
+
+            if trainer:
+                logger.debug("Trainer data data downloaded.")
+            else:
+                logger.debug(f"Couldn't download trainer data.")
+
             self._trainer_id = trainer["trainerId"]
             self._secret_id = trainer["secretId"]
+
+            logger.debug(f"\n{self._trainer_id = }\n{self._secret_id = }")
+
             return trainer
 
         except Exception as e:
@@ -210,10 +225,19 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            return (
-                self.post("savedata/update", data=json.dumps(trainer)).status_code
-                == 200
-            )
+            response = self.post(
+                "savedata/update", data=json.dumps(trainer)
+            ).status_code
+            logger.debug(response)
+
+            is_success = response == 200
+
+            if is_success:
+                logger.debug(f"Trainer data uploaded.")
+            else:
+                logger.debug(f"Couldn't upload trainer data.")
+
+            return is_success
 
         except Exception as e:
             logger.exception(e)
@@ -232,7 +256,17 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The slot data, or None if an error occurs.
         """
         try:
-            return self.get("savedata/get", {"datatype": 1, "slot": slot_index}).json()
+            response = self.get("savedata/get", {"datatype": 1, "slot": slot_index})
+            logger.debug(response)
+
+            slot: dict = response.json()
+
+            if slot:
+                logger.debug(f"Slot [{slot_index + 1}] data downloaded.")
+            else:
+                logger.debug(f"Couldn't download slot [{slot_index + 1}] data.")
+
+            return slot
 
         except Exception as e:
             logger.exception(e)
@@ -257,19 +291,26 @@ class PokeRogueAPI:
                 # To update the trainer and secret id.
                 self.get_trainer()
 
-            return (
-                self.post(
-                    "savedata/update",
-                    json=data,
-                    params={
-                        "datatype": 1,
-                        "slot": slot_index,
-                        "trainerId": self._trainer_id,
-                        "secretId": self._secret_id,
-                    },
-                ).status_code
-                == 200
+            response = self.post(
+                "savedata/update",
+                json=data,
+                params={
+                    "datatype": 1,
+                    "slot": slot_index,
+                    "trainerId": self._trainer_id,
+                    "secretId": self._secret_id,
+                },
             )
+            logger.debug(response)
+
+            is_success = response.status_code == 200
+
+            if is_success:
+                logger.debug(f"Slot [{slot_index + 1}] data uploaded.")
+            else:
+                logger.warning(f"Couldn't upload slot [{slot_index + 1}] data.")
+
+            return is_success
 
         except Exception as e:
             logger.exception(e)
@@ -295,8 +336,18 @@ class PokeRogueAPI:
                 data={"username": username, "password": password},
                 headers=cls.generate_random_headers(),
             )
+            logger.debug(response)
+
             response.raise_for_status()
-            return response.status_code == 200
+
+            is_success = response.status_code == 200
+
+            if is_success:
+                logger.debug(f"Created account.")
+            else:
+                logger.warning(f"Couldn't created account.")
+
+            return is_success
 
         except Exception as e:
             logger.exception(e)
