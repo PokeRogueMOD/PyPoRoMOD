@@ -4,8 +4,8 @@ from getpass import getpass
 from loguru import logger
 
 from .account_actions import AccountActions
-from PyPoRoAnal.utils import LoopManager, ExitCommandLoop
-from PyPoRoAnal.api.poke_rogue_api import PokeRogueAPI
+from PyPoRoMOD.utils import LoopManager, ExitCommandLoop
+from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 
 
 class AccountManager:
@@ -97,7 +97,7 @@ class AccountManager:
         except Exception as e:
             logger.exception(e)
             was_created = False
-            
+
         if was_created:
             self.accounts.append({"username": username, "password": password})
             self._LOOP.update_context("accounts", self.accounts)
@@ -106,7 +106,6 @@ class AccountManager:
             self.run()  # Re-register the loop after adding an account
         else:
             logger.info(f"Could not create {username}.")
-            
 
     def close_manager(self):
         logger.debug("Closing Account Manager.")
@@ -119,7 +118,7 @@ class AccountManager:
             "╠═ 1: Toggle anonymize account names.                                       ║",
             "╠═ 2: Add account.                                                          ║",
             "╠═ 3: Register PokeRogue account.                                           ║",
-            "╠═══════════════════════════════════════════════════════════════════════════╣"
+            "╠═══════════════════════════════════════════════════════════════════════════╣",
         ]
         account_cmds = self.display_accounts()
         for i, cmd in enumerate(account_cmds, start=4):

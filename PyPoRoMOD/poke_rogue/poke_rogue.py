@@ -1,5 +1,5 @@
 from loguru import logger
-from PyPoRoAnal.api.poke_rogue_api import PokeRogueAPI
+from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 
 
 class PokeRogue:
