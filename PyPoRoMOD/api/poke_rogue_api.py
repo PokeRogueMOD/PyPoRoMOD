@@ -215,7 +215,7 @@ class PokeRogueAPI:
                 logger.info(
                     f"You need to atleast play a gamesave unil stage 2 for this tool to work!"
                 )
-                # raise NewAccountError()
+                raise NewAccountError()
 
             trainer: dict = response.json()
 
