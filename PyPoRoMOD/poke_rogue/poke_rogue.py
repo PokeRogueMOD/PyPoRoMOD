@@ -1,14 +1,21 @@
+import json
+from pathlib import Path
 import random
+import time
 from loguru import logger
 from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 from PyPoRoMOD.data_types.js_big_int import JSBigInt
 from PyPoRoMOD.data_types.js_int import JSInt
 from PyPoRoMOD.utils import ExitCommandLoop
+from PyPoRoMOD._enum import Achievements, SignatureSpecies
 
 from .mod import EggTier, GachaType, generate_eggs
 
 
 class PokeRogue:
+    _DIR = Path(__file__).resolve().parent
+    _SAVE_PATH = _DIR.parent.parent / "accounts"
+
     NO_PASSIVE = [
         "25",
         "35",
@@ -43,7 +50,7 @@ class PokeRogue:
         self.display_name = display_name
         self.api = PokeRogueAPI(self.username, self.password)
         self.trainer = self.api.get_trainer()
-        self.slots = {s: self.api.get_trainer(s) for s in range(5)}
+        self.slots = {s: self.api.get_slot(s) for s in range(5)}
 
         logger.info(f"Logged in <{self.display_name}> successfully.")
 
@@ -165,7 +172,7 @@ class PokeRogue:
                 caught = random.randint(9999, 19999)
                 total_caught += caught
 
-                seen = caught * (1.5 + random.random())
+                seen = int(caught * (1.5 + random.random()))
                 total_seen += seen
 
                 """
@@ -283,6 +290,117 @@ class PokeRogue:
         except Exception as e:
             logger.exception(e)
 
+    def trainer_2_json(self):
+        trainer_dir = self._SAVE_PATH / self.username
+        trainer_dir.mkdir(parents=True, exist_ok=True)
+        trainer_file = trainer_dir / "trainer.json"
+
+        try:
+            with open(trainer_file, "w") as f:
+                f.write(json.dumps(self.trainer, indent=2))
+                logger.info(f"Your trainer data has been dumped! -> {trainer_file}")
+
+        except Exception as e:
+            logger.exception(e)
+
+    def slots_2_json(self):
+        trainer_dir = self._SAVE_PATH / self.username
+        trainer_dir.mkdir(parents=True, exist_ok=True)
+
+        saved_slots = []
+        try:
+            for i, slot in enumerate(self.slots.values()):
+                if slot is not None:
+                    with open(trainer_dir / f"slot {i + 1}.json", "w") as f:
+                        f.write(json.dumps(slot, indent=4))
+                        saved_slots.append(str(i))
+            logger.info(
+                f"Exported gamesave data [{', '.join(saved_slots)}] -> {trainer_dir / 'slot [1-5].json'}"
+            )
+
+        except Exception as e:
+            logger.exception(e)
+
+    def account_2_json(self):
+        self.trainer_2_json()
+        self.slots_2_json()
+
+    def set_max_vouchers(self, number=JSInt._SAVE, upload=True):
+        try:
+            self.trainer["voucherCounts"] = {
+                key: number for key in self.trainer["voucherCounts"]
+            }
+
+            logger.info(f"Set all vouchers count to [{number}].")
+
+            if upload:
+                self.api.set_trainer(self.trainer)
+
+        except Exception as e:
+            logger.exception(e)
+
+    def unlock_modes(self, upload=True):
+        try:
+            if len(self.trainer["unlocks"]) == 0:
+                return logger.info("Unable to find data entry: unlocks")
+
+            self.trainer["unlocks"] = {key: True for key in self.trainer["unlocks"]}
+
+            logger.info("All modes unlocked.")
+
+            if upload:
+                self.api.set_trainer(self.trainer)
+
+        except Exception as e:
+            logger.exception(e)
+
+    def unlock_achievements(self, upload=True):
+        try:
+            timestamp_ms = int(time.time() * 1000)
+
+            self.trainer["achvUnlocks"] = {
+                achievement.name: timestamp_ms for achievement in Achievements
+            }
+
+            logger.info("All achievements unlocked.")
+
+            if upload:
+                self.api.set_trainer(self.trainer)
+
+        except Exception as e:
+            logger.exception(e)
+
+    def unlock_vouchers(self, upload=True):
+        try:
+            timestamp_ms = int(time.time() * 1000)
+
+            self.trainer["voucherUnlocks"] = {
+                trainer.name: timestamp_ms for trainer in SignatureSpecies
+            }
+
+            logger.info("All vouchers unlocked.")
+
+            if upload:
+                self.api.set_trainer(self.trainer)
+
+        except Exception as e:
+            logger.exception(e)
+
+    def one_click_max(self):
+        try:
+            self.unlock_modes(False)
+            self.mod_starters(False)
+            self.mod_game_stats(False)
+            self.unlock_vouchers(False)
+            self.unlock_achievements(False)
+            self.set_hatch_waves_to_zero(False)
+
+            logger.info("Account maxed out.")
+            self.api.set_trainer(self.trainer)
+
+        except Exception as e:
+            logger.exception(e)
+
     def run(self):
         # I need a function to check if the starter pokemon are still the default
         # and if there is no game slot, the account is still locked
@@ -303,20 +421,36 @@ class PokeRogue:
 
         func = {
             "0": self.close,
-            "1": self.generate_eggs,
-            "2": self.set_hatch_waves_to_zero,
-            "3": self.mod_starters,
-            "4": self.mod_game_stats,
+            "1": self.account_2_json,
+            "2": self.trainer_2_json,
+            "3": self.slots_2_json,
+            "4": self.generate_eggs,
+            "5": self.set_hatch_waves_to_zero,
+            "6": self.mod_starters,
+            "7": self.mod_game_stats,
+            "8": self.set_max_vouchers,
+            "9": self.unlock_modes,
+            "10": self.unlock_achievements,
+            "11": self.unlock_vouchers,
+            "12": self.one_click_max,
         }
 
         cmd = "\n".join(
             [
                 "<------------------------- POKEROGUE COMMANDS ------------------------>",
                 "0: Close.",
-                "1: Generate eggs.",
-                "2: Hatch all eggs after next battle.",
-                "3: Mod starters.",
-                "4: Hatch all eggs after next battle.",
+                "1: Export all account data to JSON.",
+                "2: Export trainer data to JSON.",
+                "3: Export all slots data to JSON.",
+                "4: Generate eggs.",
+                "5: Hatch all eggs after next battle.",
+                "6: Unlock all starter pokemon forms and variants shiny t3.",
+                "7: Set game stats to high values.",
+                "8: Set vouchers to max save to use amount.",
+                "9: Unlock all game modes.",
+                "10: Unlock all achievements.",
+                "11: Unlock all vouchers.",
+                "12: 1-Click max account.",
                 "-----------------------------------------------------------------------",
             ]
         )

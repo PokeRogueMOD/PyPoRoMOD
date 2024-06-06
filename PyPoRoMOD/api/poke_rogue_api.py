@@ -150,10 +150,14 @@ class PokeRogueAPI:
         headers = {
             "Accept": "application/x-www-form-urlencoded",
             "Content-Type": "application/x-www-form-urlencoded",
+            "Origin": "https://pokerogue.net",
             "Referer": "https://pokerogue.net/",
             "Sec-Ch-Ua": f'"Google Chrome";v="{random_chrome_major_version}", "Chromium";v="{random_chrome_major_version}", "Not.A/Brand";v="24"',
             "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": random_platform.split(";")[0],
+            "Sec-Ch-Ua-Platform": f'"{random_platform.split(";")[0]}"',
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-site",
             "User-Agent": f"Mozilla/5.0 ({random_platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random_chrome_major_version}.0.0.0 Safari/537.36",
         }
 
@@ -226,11 +230,11 @@ class PokeRogueAPI:
         """
         try:
             response = self.post(
-                "savedata/update", data=json.dumps(trainer)
-            ).status_code
+                "savedata/update", json=trainer
+            )
             logger.debug(response)
 
-            is_success = response == 200
+            is_success = response.status_code == 200
 
             if is_success:
                 logger.debug(f"Trainer data uploaded.")
