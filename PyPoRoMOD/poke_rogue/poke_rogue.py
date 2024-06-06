@@ -7,7 +7,7 @@ from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 from PyPoRoMOD.data_types.js_big_int import JSBigInt
 from PyPoRoMOD.data_types.js_int import JSInt
 from PyPoRoMOD.utils import ExitCommandLoop
-from PyPoRoMOD._enum import Achievements, SignatureSpecies
+from PyPoRoMOD._enum import Achievements, SignatureSpecies, Species
 
 from .mod import EggTier, GachaType, generate_eggs
 
@@ -37,19 +37,19 @@ class PokeRogue:
         "4122",
     ]
 
-    username = None
-    password = None
-    display_name = None
-    api = None
-    trainer = None
-    slots = None
+    username: str | None = None
+    password: str | None = None
+    display_name: str | None = None
+    api: PokeRogueAPI | None = None
+    trainer: dict = {}
+    slots: dict = {}
 
     def __init__(self, username: str, password: str, display_name: str) -> None:
         self.username = username
         self.password = password
         self.display_name = display_name
         self.api = PokeRogueAPI(self.username, self.password)
-        self.trainer = self.api.get_trainer()
+        self.trainer = self.api.get_trainer() or {}
         self.slots = {s: self.api.get_slot(s) for s in range(5)}
 
         logger.info(f"Logged in <{self.display_name}> successfully.")
@@ -158,6 +158,12 @@ class PokeRogue:
 
     def mod_starters(self, upload=True):
         try:
+            if not "dexData" in self.trainer:
+                self.trainer["dexData"] = {}
+            if not "starterData" in self.trainer:
+                self.trainer["starterData"] = {}
+            if not "gameStats" in self.trainer:
+                self.trainer["gameStats"] = {}
             dex_data = self.trainer["dexData"]
             starter_data = self.trainer["starterData"]
             game_stats = self.trainer["gameStats"]
@@ -165,7 +171,8 @@ class PokeRogue:
             total_caught = 0
             total_seen = 0
 
-            for entry in dex_data.keys():
+            for s in Species:
+                dex_id = str(s.value)
                 hatched = random.randint(9999, 19999)
                 total_hatched += hatched
 
@@ -189,7 +196,7 @@ class PokeRogue:
 
                 """
 
-                dex_data[entry] = {
+                dex_data[dex_id] = {
                     "seenAttr": JSBigInt._MAX,
                     "caughtAttr": JSBigInt._MAX,
                     "natureAttr": JSInt._MAX,
@@ -215,13 +222,13 @@ class PokeRogue:
 
                 """
 
-                starter_data[entry] = {
+                starter_data[dex_id] = {
                     "moveset": None,
                     "eggMoves": JSInt._MAX,
                     "candyCount": JSInt(caught + random.randint(99, 999)).value,
                     "friendship": JSInt._MAX,
                     "abilityAttr": JSInt._MAX,
-                    "passiveAttr": 0 if entry in self.NO_PASSIVE else 3,
+                    "passiveAttr": 0 if dex_id in self.NO_PASSIVE else 3,
                     "valueReduction": 2,
                     "classicWinCount": 0,
                 }
@@ -418,6 +425,10 @@ class PokeRogue:
         # Later save all the trainer and slot data into a db, so you can store different account versions
         # And backup the original account data, so if a user dont likes the result, he can just rollback the account to the
         # original saved version.
+        # Also use the official key replacements to save more disk space and also gzip the data and save it as a blob.
+        # Implement the export to json in the gui and download it from there as a json with the trainer and all slots included, where empty slots are None
+
+        # Reverse the legendary egg code to see if you can somehow select the legendary this way or is it only the 50% chance, search it in the src code!
 
         func = {
             "0": self.close,

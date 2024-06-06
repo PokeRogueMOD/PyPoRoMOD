@@ -12,6 +12,12 @@ class LoginError(Exception):
     pass
 
 
+class NewAccountError(Exception):
+    """Custom exception for login failures."""
+
+    pass
+
+
 class PokeRogueAPI:
     """
     API client for interacting with the PokeRogue service.
@@ -49,7 +55,10 @@ class PokeRogueAPI:
         self._login()
 
     def get(
-        self, endpoint: str, params: Dict[str, Any] = {"datatype": 0}
+        self,
+        endpoint: str,
+        params: Dict[str, Any] = {"datatype": 0},
+        do_raise: bool = True,
     ) -> requests.Response:
         """
         Sends a GET request to the specified endpoint.
@@ -61,7 +70,7 @@ class PokeRogueAPI:
         Returns:
             requests.Response: The response from the API.
         """
-        return self._request("get", endpoint, params=params)
+        return self._request("get", endpoint, params=params, do_raise=do_raise)
 
     def post(
         self,
@@ -69,6 +78,7 @@ class PokeRogueAPI:
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
         params: Dict[str, Any] = {"datatype": 0},
+        do_raise: bool = True,
     ) -> requests.Response:
         """
         Sends a POST request to the specified endpoint.
@@ -82,7 +92,7 @@ class PokeRogueAPI:
         Returns:
             requests.Response: The response from the API.
         """
-        return self._request("post", endpoint, data, json, params)
+        return self._request("post", endpoint, data, json, params, do_raise)
 
     def _request(
         self,
@@ -91,6 +101,7 @@ class PokeRogueAPI:
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
         params: Dict[str, Any] = {"datatype": 0},
+        do_raise: bool = True,
     ) -> requests.Response:
         """
         Sends a request to the specified endpoint using the specified method.
@@ -114,7 +125,10 @@ class PokeRogueAPI:
             json=json if method != "get" else None,
             headers=self.headers,
         )
-        response.raise_for_status()
+
+        if do_raise:
+            response.raise_for_status()
+
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:
@@ -173,7 +187,7 @@ class PokeRogueAPI:
             response = self.post(
                 "account/login",
                 data={"username": self.username, "password": self.password},
-                params={}
+                params={},
             )
             logger.debug(response)
 
@@ -194,15 +208,18 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The trainer data, or None if an error occurs.
         """
         try:
-            response = self.get("savedata/get")
+            response = self.get("savedata/get", do_raise=False)
             logger.debug(response)
+
+            if response.status_code == 404:
+                logger.info(
+                    f"You need to atleast play a gamesave unil stage 2 for this tool to work!"
+                )
+                # raise NewAccountError()
 
             trainer: dict = response.json()
 
-            if trainer:
-                logger.debug("Trainer data data downloaded.")
-            else:
-                logger.debug(f"Couldn't download trainer data.")
+            logger.debug("Trainer data data downloaded.")
 
             self._trainer_id = trainer["trainerId"]
             self._secret_id = trainer["secretId"]
@@ -211,6 +228,8 @@ class PokeRogueAPI:
 
             return trainer
 
+        except NewAccountError:
+            raise NewAccountError()
         except Exception as e:
             logger.exception(e)
             return None
@@ -229,9 +248,7 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            response = self.post(
-                "savedata/update", json=trainer
-            )
+            response = self.post("savedata/update", json=trainer)
             logger.debug(response)
 
             is_success = response.status_code == 200
@@ -260,8 +277,15 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The slot data, or None if an error occurs.
         """
         try:
-            response = self.get("savedata/get", {"datatype": 1, "slot": slot_index})
+            response = self.get(
+                "savedata/get",
+                params={"datatype": 1, "slot": slot_index},
+                do_raise=False,
+            )
             logger.debug(response)
+
+            if response.status_code == 404:
+                return None
 
             slot: dict = response.json()
 
