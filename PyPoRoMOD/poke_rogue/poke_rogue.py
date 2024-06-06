@@ -167,7 +167,7 @@ class PokeRogue:
 
             for entry in dex_data.keys():
                 hatched = random.randint(9999, 19999)
-                total_seen += hatched
+                total_hatched += hatched
 
                 caught = random.randint(9999, 19999)
                 total_caught += caught
@@ -247,7 +247,7 @@ class PokeRogue:
         except Exception as e:
             logger.exception(e)
 
-    def mod_game_stats(self, number=9999, upload=True):
+    def mod_game_stats(self, number=JSInt._SAVE, upload=True):
         try:
             game_stats = self.trainer["gameStats"]
 
@@ -270,7 +270,7 @@ class PokeRogue:
             game_stats["mythicalPokemonCaught"] = number
             game_stats["mythicalPokemonHatched"] = number
             game_stats["mythicalPokemonSeen"] = number
-            game_stats["playTime"] = number * 1000
+            game_stats["playTime"] = number
             game_stats["pokemonFused"] = number
             game_stats["rareEggsPulled"] = number
             game_stats["ribbonsOwned"] = number
@@ -388,15 +388,15 @@ class PokeRogue:
 
     def one_click_max(self):
         try:
-            self.unlock_modes(False)
-            self.mod_starters(False)
-            self.mod_game_stats(False)
-            self.unlock_vouchers(False)
-            self.unlock_achievements(False)
-            self.set_hatch_waves_to_zero(False)
+            self.unlock_modes()
+            self.unlock_achievements()
+            self.unlock_vouchers()
+            self.mod_game_stats()
+            self.mod_starters()
+            self.set_max_vouchers()
+            self.set_hatch_waves_to_zero()
 
             logger.info("Account maxed out.")
-            self.api.set_trainer(self.trainer)
 
         except Exception as e:
             logger.exception(e)
