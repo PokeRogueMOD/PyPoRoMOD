@@ -10,24 +10,24 @@ Welcome to the PyPoRoAnal! This project aims to analyze and modify the account a
 
 ## Features
 
-[x]   API to interact with the game server (online and local)
-[x]   Account Manager
-    [x]   Add Accounts
-    [x]   Manage Accounts
-    [x]   Create PokeRogue Accounts
-[x]   Account MOD
-    [x]   Export trainer and slots to json
-    [x]   Select and generate eggs without using vouchers, by selecting the tier and gacha type
-    [x]   Hatch all eggs after the next battle
-    [x]   Unlock all starters T3 shiny with all forms and variants
-    [x]   Set high game stats (P)
-    [x]   Set max save to use voucher count
-    [x]   Unlock all gamemodes (Endless, Spliced Endless, Daily)
-    [x]   Unlock all achievements
-    [x]   Unlock all vouchers
-    [x]   Max account with 1 command
-    [ ]   You have to play a game save until wave 2 or 3 to unlock your account if you just created it. I would like to find a solution to also max out new accounts, maybe insert a game save or play it as fast as possible.
-    [ ]   Edit slots (Add items, change pokemon level, enemys, etc.)
+- [x]   API to interact with the game server (online and local)
+- [x]   Account Manager
+    - [x]   Add Accounts
+    - [x]   Manage Accounts
+    - [x]   Create PokeRogue Accounts
+- [x]   Account MOD
+    - [x]   Export trainer and slots to json
+    - [x]   Select and generate eggs without using vouchers, by selecting the tier and gacha type
+    - [x]   Hatch all eggs after the next battle
+    - [x]   Unlock all starters T3 shiny with all forms and variants
+    - [x]   Set high game stats (P)
+    - [x]   Set max save to use voucher count
+    - [x]   Unlock all gamemodes (Endless, Spliced Endless, Daily)
+    - [x]   Unlock all achievements
+    - [x]   Unlock all vouchers
+    - [x]   Max account with 1 command
+    - [ ]   You have to play a game save until wave 2 or 3 to unlock your account if you just created it. I would like to find a solution to also max out new accounts, maybe insert a game save or play it as fast as possible.
+    - [ ]   Edit slots (Add items, change pokemon level, enemys, etc.)
 
 ## [Video Tutorial (Old)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
 
