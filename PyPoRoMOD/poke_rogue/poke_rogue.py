@@ -437,21 +437,21 @@ class PokeRogue:
 
         cmd = "\n".join(
             [
-                "<------------------------- POKEROGUE COMMANDS ------------------------>",
-                "0: Close.",
-                "1: Export all account data to JSON.",
-                "2: Export trainer data to JSON.",
-                "3: Export all slots data to JSON.",
-                "4: Generate eggs.",
-                "5: Hatch all eggs after next battle.",
-                "6: Unlock all starter pokemon forms and variants shiny t3.",
-                "7: Set game stats to high values.",
-                "8: Set vouchers to max save to use amount.",
-                "9: Unlock all game modes.",
-                "10: Unlock all achievements.",
-                "11: Unlock all vouchers.",
-                "12: 1-Click max account.",
-                "-----------------------------------------------------------------------",
+                "╔═════════════════════════ PyPoRoMOD COMMANDS ════════════════════════╗",
+                "╠═ 0: Close.                                                          ║",
+                "╠═ 1: Export all account data to JSON.                                ║",
+                "╠═ 2: Export trainer data to JSON.                                    ║",
+                "╠═ 3: Export all slots data to JSON.                                  ║",
+                "╠═ 4: Generate eggs.                                                  ║",
+                "╠═ 5: Hatch all eggs after next battle.                               ║",
+                "╠═ 6: Unlock all starter pokemon forms and variants shiny t3.         ║",
+                "╠═ 7: Set game stats to high values.                                  ║",
+                "╠═ 8: Set vouchers to max save to use amount.                         ║",
+                "╠═ 9: Unlock all game modes.                                          ║",
+                "╠═ 10: Unlock all achievements.                                       ║",
+                "╠═ 11: Unlock all vouchers.                                           ║",
+                "╠═ 12: 1-Click max account.                                           ║",
+                "╚═════════════════════════════════════════════════════════════════════╝",
             ]
         )
 
