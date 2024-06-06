@@ -8,13 +8,26 @@
 
 Welcome to the PyPoRoAnal! This project aims to analyze and modify the account and slot data. I just finished the API and a basic TypeScript to Python translator for Enums. The next step will be adding features, so stay tuned for new updates...
 
-## Feature
+## Features
 
--   API to interact with the game server (online and local)
--   Account Manager
-    -   Add Accounts
-    -   Manage Accounts
-    -   Create PokeRogue Accounts
+[x]   API to interact with the game server (online and local)
+[x]   Account Manager
+    [x]   Add Accounts
+    [x]   Manage Accounts
+    [x]   Create PokeRogue Accounts
+[x]   Account MOD
+    [x]   Export trainer and slots to json
+    [x]   Select and generate eggs without using vouchers, by selecting the tier and gacha type
+    [x]   Hatch all eggs after the next battle
+    [x]   Unlock all starters T3 shiny with all forms and variants
+    [x]   Set high game stats (P)
+    [x]   Set max save to use voucher count
+    [x]   Unlock all gamemodes (Endless, Spliced Endless, Daily)
+    [x]   Unlock all achievements
+    [x]   Unlock all vouchers
+    [x]   Max account with 1 command
+    [ ]   You have to play a game save until wave 2 or 3 to unlock your account if you just created it. I would like to find a solution to also max out new accounts, maybe insert a game save or play it as fast as possible.
+    [ ]   Edit slots (Add items, change pokemon level, enemys, etc.)
 
 ## [Video Tutorial (Old)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
 
