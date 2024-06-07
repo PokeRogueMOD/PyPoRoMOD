@@ -69,6 +69,8 @@ class PokeRogueAPI:
 
         Returns:
             requests.Response: The response from the API.
+
+        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L304-L317
         """
         return self._request("get", endpoint, params=params, do_raise=do_raise)
 
@@ -91,6 +93,8 @@ class PokeRogueAPI:
 
         Returns:
             requests.Response: The response from the API.
+
+        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L319-L335
         """
         return self._request("post", endpoint, data, json, params, do_raise)
 
@@ -117,6 +121,10 @@ class PokeRogueAPI:
             requests.Response: The response from the API.
         """
         url = urljoin(self.api_url, endpoint)
+
+        # Log cookies before the request
+        logger.debug(f"Cookies before request: {self.session.cookies.get_dict()}")
+
         response = self.session.request(
             method,
             url,
@@ -125,6 +133,9 @@ class PokeRogueAPI:
             json=json if method != "get" else None,
             headers=self.headers,
         )
+
+        # Log cookies after the request
+        logger.debug(f"Cookies after request: {self.session.cookies.get_dict()}")
 
         if do_raise:
             response.raise_for_status()
