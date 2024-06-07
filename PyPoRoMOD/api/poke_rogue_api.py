@@ -1,9 +1,20 @@
+from enum import Enum
 import json
+import secrets
+import string
 import requests
 import random
 from urllib.parse import urljoin
 from loguru import logger
 from typing import Any, Dict, Optional, Union
+
+
+class GameDataType(Enum):
+    SYSTEM = 0
+    SESSION = 1
+    SETTINGS = 2
+    TUTORIALS = 3
+    SEEN_DIALOGUES = 4
 
 
 class LoginError(Exception):
@@ -25,6 +36,7 @@ class PokeRogueAPI:
     Source: https://github.com/pagefaultgames/pokerogue/blob/12bd22f2ca2204af125a4faab985c4d2b9017aea/src/utils.ts#L265
     """
 
+    SESSION_ID_KEY = "pokerogue_sessionId"
     BASE_URL = "https://api.pokerogue.net"
 
     def __init__(
@@ -47,56 +59,87 @@ class PokeRogueAPI:
         self.session = requests.Session()
         self.username = username
         self.password = password
-        self.headers = self.generate_random_headers()
+        self.headers = self._generate_random_headers()
+        self.client_session_id = self.get_client_session_id()
 
         self._secret_id: Optional[str] = None
         self._trainer_id: Optional[str] = None
 
         self._login()
+        self.json_headers = (
+            self._get_json_headers()
+        )  # After login get the jeaders for updateing data
 
-    def get(
-        self,
-        endpoint: str,
-        params: Dict[str, Any] = {"datatype": 0},
-        do_raise: bool = True,
-    ) -> requests.Response:
+    @staticmethod
+    def _generate_random_headers() -> Dict[str, str]:
         """
-        Sends a GET request to the specified endpoint.
-
-        Args:
-            endpoint (str): The API endpoint to send the request to.
-            params (Dict[str, Any], optional): The query parameters for the request. Defaults to {"datatype": 0}.
+        Generates random headers for the session.
 
         Returns:
-            requests.Response: The response from the API.
-
-        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L304-L317
+            Dict[str, str]: The generated headers.
         """
-        return self._request("get", endpoint, params=params, do_raise=do_raise)
+        chrome_major_versions = list(range(110, 126))
+        sec_ch_ua_platform = ["Windows", "Macintosh", "X11"]
+        platforms = [
+            "Windows NT 10.0; Win64; x64",
+            "Windows NT 6.1; Win64; x64",
+            "Macintosh; Intel Mac OS X 10_15_7",
+            "Macintosh; Intel Mac OS X 11_2_3",
+            "X11; Linux x86_64",
+            "X11; Ubuntu; Linux x86_64",
+        ]
 
-    def post(
-        self,
-        endpoint: str,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        params: Dict[str, Any] = {"datatype": 0},
-        do_raise: bool = True,
-    ) -> requests.Response:
+        random_platform = random.choice(platforms)
+        random_sec_ch_ua_platform = random.choice(sec_ch_ua_platform)
+        random_chrome_major_version = random.choice(chrome_major_versions)
+
+        headers = {
+            "Accept": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Origin": "https://pokerogue.net",
+            "Referer": "https://pokerogue.net/",
+            "Sec-Ch-Ua": f'"Google Chrome";v="{random_chrome_major_version}", "Chromium";v="{random_chrome_major_version}", "Not.A/Brand";v="24"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": f'"{random_sec_ch_ua_platform}"',
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-site",
+            "User-Agent": f"Mozilla/5.0 ({random_platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random_chrome_major_version}.0.0.0 Safari/537.36",
+        }
+
+        return headers
+
+    def _get_json_headers(self) -> None:
         """
-        Sends a POST request to the specified endpoint.
+        Sets the headers for the session.
 
         Args:
-            endpoint (str): The API endpoint to send the request to.
-            data (Optional[Dict[str, Any]], optional): The form data to send in the request. Defaults to None.
-            json (Optional[Dict[str, Any]], optional): The JSON data to send in the request. Defaults to None.
-            params (Dict[str, Any], optional): The query parameters for the request. Defaults to {"datatype": 0}.
-
-        Returns:
-            requests.Response: The response from the API.
-
-        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L319-L335
+            headers (Dict[str, str]): The headers to set for the session.
         """
-        return self._request("post", endpoint, data, json, params, do_raise)
+        json_headers = self.headers.copy()
+
+        FLAG = "application/json"
+        json_headers["Accept"] = FLAG
+        json_headers["Content-Type"] = FLAG
+        return json_headers
+
+    @staticmethod
+    def get_client_session_id(length=32, seeded=False):
+        characters = string.ascii_letters + string.digits
+        result = []
+
+        if seeded:
+            # Create a seeded random number generator
+            rng = random.Random()
+            for i in range(length):
+                random_index = rng.randint(0, len(characters) - 1)
+                result.append(characters[random_index])
+        else:
+            for _ in range(length):
+                random_index = random.randint(0, len(characters) - 1)
+                result.append(characters[random_index])
+
+        return "".join(result)
 
     def _request(
         self,
@@ -106,6 +149,7 @@ class PokeRogueAPI:
         json: Optional[Dict[str, Any]] = None,
         params: Dict[str, Any] = {"datatype": 0},
         do_raise: bool = True,
+        headers: bool = None,
     ) -> requests.Response:
         """
         Sends a request to the specified endpoint using the specified method.
@@ -122,71 +166,67 @@ class PokeRogueAPI:
         """
         url = urljoin(self.api_url, endpoint)
 
-        # Log cookies before the request
-        logger.debug(f"Cookies before request: {self.session.cookies.get_dict()}")
-
         response = self.session.request(
             method,
             url,
             params=params,
             data=data if method != "get" else None,
             json=json if method != "get" else None,
-            headers=self.headers,
+            headers=(headers or self.headers),
         )
-
-        # Log cookies after the request
-        logger.debug(f"Cookies after request: {self.session.cookies.get_dict()}")
 
         if do_raise:
             response.raise_for_status()
 
         return response
 
-    def set_headers(self, headers: Dict[str, str]) -> None:
+    def get(
+        self,
+        endpoint: str,
+        params: Dict[str, Any] = {"datatype": 0},
+        do_raise: bool = True,
+        headers: bool = None,
+    ) -> requests.Response:
         """
-        Sets the headers for the session.
+        Sends a GET request to the specified endpoint.
 
         Args:
-            headers (Dict[str, str]): The headers to set for the session.
-        """
-        self.session.headers.update(headers)
-
-    @staticmethod
-    def generate_random_headers() -> Dict[str, str]:
-        """
-        Generates random headers for the session.
+            endpoint (str): The API endpoint to send the request to.
+            params (Dict[str, Any], optional): The query parameters for the request. Defaults to {"datatype": 0}.
 
         Returns:
-            Dict[str, str]: The generated headers.
+            requests.Response: The response from the API.
+
+        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L304-L317
         """
-        chrome_major_versions = list(range(110, 126))
-        platforms = [
-            "Windows NT 10.0; Win64; x64",
-            "Windows NT 6.1; Win64; x64",
-            "Macintosh; Intel Mac OS X 10_15_7",
-            "Macintosh; Intel Mac OS X 11_2_3",
-            "X11; Linux x86_64",
-            "X11; Ubuntu; Linux x86_64",
-        ]
+        return self._request(
+            "get", endpoint, params=params, do_raise=do_raise, headers=headers
+        )
 
-        random_platform = random.choice(platforms)
-        random_chrome_major_version = random.choice(chrome_major_versions)
+    def post(
+        self,
+        endpoint: str,
+        data: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any]] = None,
+        params: Dict[str, Any] = {"datatype": 0},
+        do_raise: bool = True,
+        headers: bool = None,
+    ) -> requests.Response:
+        """
+        Sends a POST request to the specified endpoint.
 
-        headers = {
-            "Accept": "application/x-www-form-urlencoded",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Origin": "https://pokerogue.net",
-            "Referer": "https://pokerogue.net/",
-            "Sec-Ch-Ua": f'"Google Chrome";v="{random_chrome_major_version}", "Chromium";v="{random_chrome_major_version}", "Not.A/Brand";v="24"',
-            "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": f'"{random_platform.split(";")[0]}"',
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-site",
-            "User-Agent": f"Mozilla/5.0 ({random_platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random_chrome_major_version}.0.0.0 Safari/537.36",
-        }
+        Args:
+            endpoint (str): The API endpoint to send the request to.
+            data (Optional[Dict[str, Any]], optional): The form data to send in the request. Defaults to None.
+            json (Optional[Dict[str, Any]], optional): The JSON data to send in the request. Defaults to None.
+            params (Dict[str, Any], optional): The query parameters for the request. Defaults to {"datatype": 0}.
 
-        return headers
+        Returns:
+            requests.Response: The response from the API.
+
+        Src Code: https://github.com/pagefaultgames/pokerogue/blob/90aa9b42099a770fdbfca2dbfb94cc571b5032b7/src/utils.ts#L319-L335
+        """
+        return self._request("post", endpoint, data, json, params, do_raise, headers)
 
     def _login(self) -> None:
         """
@@ -249,8 +289,10 @@ class PokeRogueAPI:
         """
         Updates trainer data on the API.
 
-        Source: https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/common.go#L56
-        https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/endpoints.go#L410
+        Source:
+            - https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/common.go#L56
+            - https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/endpoints.go#L410
+            - https://github.com/pagefaultgames/pokerogue/blob/20a3a4f60fe58a5fe929a51dff76a5db64080492/src/system/game-data.ts#L302
 
         Args:
             trainer (Dict[str, Any]): The trainer data to update.
@@ -259,7 +301,12 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            response = self.post("savedata/update", json=trainer)
+            response = self.post(
+                "savedata/update",
+                json=trainer,
+                params={"datatype": GameDataType.SYSTEM.value},
+                headers=self.json_headers,
+            )
             logger.debug(response)
 
             is_success = response.status_code == 200

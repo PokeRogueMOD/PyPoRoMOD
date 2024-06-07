@@ -141,7 +141,11 @@ class PokeRogue:
 
     def set_hatch_waves_to_zero(self, upload=True):
         try:
-            if "eggs" not in self.trainer or len(self.trainer["eggs"]) == 0:
+            if (
+                "eggs" not in self.trainer
+                or self.trainer["eggs"] is None
+                or len(self.trainer["eggs"]) == 0
+            ):
                 logger.info("No eggs to hatch.")
                 return
 
