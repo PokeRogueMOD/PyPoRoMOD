@@ -276,7 +276,7 @@ class PokeRogueAPI:
             self._trainer_id = trainer["trainerId"]
             self._secret_id = trainer["secretId"]
 
-            logger.debug(f"\n{self._trainer_id = }\n{self._secret_id = }")
+            logger.debug(f"[{self._trainer_id = }] & [{self._secret_id = }]")
 
             return trainer
 

@@ -4,6 +4,7 @@
 
 ### Custom ###
 accounts/
+log/
 .vscode/
 
 ### Python ###
