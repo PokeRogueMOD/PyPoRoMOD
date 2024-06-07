@@ -125,6 +125,7 @@ class PokeRogueAPI:
 
     @staticmethod
     def get_client_session_id(length=32, seeded=False):
+        """Src: https://github.com/pagefaultgames/pokerogue/blob/20a3a4f60fe58a5fe929a51dff76a5db64080492/src/utils.ts#L9-L19"""
         characters = string.ascii_letters + string.digits
         result = []
 
