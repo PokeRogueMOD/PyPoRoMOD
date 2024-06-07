@@ -29,9 +29,9 @@ Welcome to the PyPoRoAnal! This project aims to analyze and modify the account a
     - [ ]   You have to play a game save until wave 2 or 3 to unlock your account if you just created it. I would like to find a solution to also max out new accounts, maybe insert a game save or play it as fast as possible.
     - [ ]   Edit slots (Add items, change pokemon level, enemys, etc.)
 
-## [Video Tutorial (Old)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
+## [Video Tutorial](https://youtu.be/768219MdFjA)
 
-[![Video Tutorial (Old)](./resources/thumbnail.png)](https://www.youtube.com/watch?v=iS8bZPSHkIg)
+[![Video Tutorial](./resources/thumbnail.png)](https://youtu.be/768219MdFjA)
 
 ## Contact
 
