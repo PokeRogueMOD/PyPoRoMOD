@@ -1,7 +1,7 @@
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
+from loguru import logger
 from typescript_parser import TypescriptParser
-from enum import Enum
 
 
 class EnumGenerator:
@@ -17,7 +17,7 @@ Redistribution and use in source and binary forms, with or without modification,
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 '''
@@ -27,7 +27,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         self.out_dir = out_dir
         self.invalid_dir = out_dir / "invalid"
         self.out_dir.mkdir(parents=True, exist_ok=True)
-        self.invalid_dir.mkdir(parents=True, exist_ok=True)
+        # self.invalid_dir.mkdir(parents=True, exist_ok=True)
+        self.generated_definitions: List[Tuple[str, str]] = []
 
     def process_typescript_files(self) -> List[Path]:
         """
@@ -54,16 +55,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                         with open(output_file, "w", encoding="utf-8") as py_file:
                             py_file.write(self.add_copyright_header(python_code))
                         generated_files.append(output_file)
-                        print(f"Generated {output_file}")
-                    else:
-                        invalid_output_file = (
-                            self.invalid_dir / f"{parser.camel_to_snake(enum_name)}.py"
-                        )
-                        with open(
-                            invalid_output_file, "w", encoding="utf-8"
-                        ) as py_file:
-                            py_file.write(self.add_copyright_header(python_code))
-                        print(f"Invalid Python code. Moved to {invalid_output_file}")
+                        self.generated_definitions.append((output_file.stem, enum_name))
+                        logger.info(f"Generated {output_file}")
+                    # else:
+                    #     invalid_output_file = (
+                    #         self.invalid_dir / f"{parser.camel_to_snake(enum_name)}.py"
+                    #     )
+                    #     with open(
+                    #         invalid_output_file, "w", encoding="utf-8"
+                    #     ) as py_file:
+                    #         py_file.write(self.add_copyright_header(python_code))
+                    #     logger.info(
+                    #         f"Invalid Python code. Moved to {invalid_output_file}"
+                    #     )
 
         return generated_files
 
@@ -82,11 +86,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             if code.endswith(" = {\n}\n"):
                 return False
 
-            exec(code, {"__builtins__": None, "Enum": Enum}, {})
+            # Add import statement to the code
+            code_with_import = "from enum import Enum\n" + code
+
+            # Execute the code with builtins enabled
+            exec(code_with_import, {"__builtins__": __builtins__}, {})
             return True
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError):
             return False
         except Exception as e:
+            logger.exception(e)
             return False
 
     def add_copyright_header(self, python_code: str) -> str:
@@ -101,23 +110,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         """
         return self.HEADER + python_code
 
-    def create_init_py(self, generated_files: List[Path]) -> None:
+    def create_init_py(self) -> None:
         """
         Create an __init__.py file with import statements for each generated Python file.
-
-        Args:
-            generated_files (List[Path]): List of generated Python file paths.
         """
+        unique_imports = set(self.generated_definitions)
         with open(self.out_dir / "__init__.py", "w", encoding="utf-8") as init_file:
             init_file.write(self.HEADER)
-            for py_file in generated_files:
-                module_name = py_file.stem
-                class_name = "".join(word.title() for word in module_name.split("_"))
+            for module_name, class_name in unique_imports:
                 init_file.write(f"from .{module_name} import {class_name}\n")
 
     def run(self) -> None:
         """
         Run the enum generation process.
         """
-        generated_files = self.process_typescript_files()
-        self.create_init_py(generated_files)
+        self.process_typescript_files()
+        self.create_init_py()
