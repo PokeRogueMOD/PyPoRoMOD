@@ -16,6 +16,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 from enum import Enum
 
 
-class MoneyFormat(Enum):
-    NORMAL = 0
-    ABBREVIATED = 1
+class PlayerGender(Enum):
+    UNSET = 0
+    MALE = 1
+    FEMALE = 2

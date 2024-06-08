@@ -16,6 +16,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 from enum import Enum
 
 
-class MoneyFormat(Enum):
-    NORMAL = 0
-    ABBREVIATED = 1
+class ChallengeType(Enum):
+    STARTER_CHOICE = 0
+    STARTER_POINTS = 1
+    STARTER_MODIFY = 2
+    POKEMON_IN_BATTLE = 3
+    FIXED_BATTLES = 4

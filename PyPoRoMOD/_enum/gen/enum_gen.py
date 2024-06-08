@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 import subprocess
-import ast
+
 
 class SourceManager:
     def __init__(self, repo_url: str, src_dir: Path) -> None:
@@ -29,6 +29,7 @@ class SourceManager:
         """
         subprocess.run(["git", "-C", str(self.src_dir), "pull"], check=True)
 
+
 class TypescriptParser:
     def __init__(self, file_path: Path) -> None:
         self.file_path = file_path
@@ -44,7 +45,9 @@ class TypescriptParser:
         Returns:
             str: The converted snake_case string.
         """
-        return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip("_")
+        return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip(
+            "_"
+        )
 
     @staticmethod
     def parse_typescript_enum(ts_enum: str) -> List[Tuple[str, str]]:
@@ -99,11 +102,9 @@ class TypescriptParser:
                 comment_lines.append(line)
                 if line.endswith("*/"):
                     inside_multiline_comment = False
-                    comment_block = "\n".join(line.strip('/* ').strip() for line in comment_lines)
-                    if is_dict:
-                        python_dict += f'    """\n    {comment_block}\n    """\n'
-                    else:
-                        python_enum += f'    """\n    {comment_block}\n    """\n'
+                    comment_block = "\n".join(
+                        line.strip("/* ").strip() for line in comment_lines
+                    )
                     comment_lines = []
                 continue
 
@@ -146,18 +147,26 @@ class TypescriptParser:
                     python_enum += f"class {enum_name}(Enum):\n"
                 enum_started = True
 
-            if comment_lines:
-                comment_block = "\n".join(line.strip('/* ').strip() for line in comment_lines)
-                if is_dict:
-                    python_dict += f'    """ {comment_block} """\n'
-                else:
-                    python_enum += f'    """ {comment_block} """\n'
-                comment_lines = []
-
             if is_dict:
-                python_dict += f'    "{field}": {value},\n'
+                if comment_lines:
+                    comment_block = "\n".join(
+                        line.strip("/* ").strip() for line in comment_lines
+                    )
+                    python_dict += f'    "{field}": {value},  # {comment_block}\n'
+                    comment_lines = []
+                else:
+                    python_dict += f'    "{field}": {value},\n'
             else:
-                python_enum += f"    {field} = {value}\n"
+                if comment_lines:
+                    comment_block = "\n".join(
+                        line.strip("/* ").strip() for line in comment_lines
+                    )
+                    python_enum += f"    {field} = {value}\n"
+                    python_enum += f'    """{comment_block}"""\n'
+                    comment_lines = []
+                else:
+                    python_enum += f"    {field} = {value}\n"
+
             current_value += 1
 
         if enum_started:
@@ -180,20 +189,19 @@ class TypescriptParser:
             content = file.read()
             return self.parse_typescript_enum(content)
 
+
 class EnumGenerator:
     def __init__(self, src_dir: Path, out_dir: Path) -> None:
         self.src_dir = src_dir
         self.out_dir = out_dir
-        self.invalid_dir = out_dir / "invalid"
         self.out_dir.mkdir(parents=True, exist_ok=True)
-        self.invalid_dir.mkdir(parents=True, exist_ok=True)
 
     def process_typescript_files(self) -> List[Path]:
         """
         Process all TypeScript files in the source directory and generate Python files.
 
         Returns:
-            List of generated valid Python file paths.
+            List[Path]: List of generated Python file paths.
         """
         generated_files = []
         for ts_file in self.src_dir.glob("**/*.ts"):
@@ -202,45 +210,70 @@ class EnumGenerator:
 
             for python_code, enum_name in parsed_data:
                 if python_code and enum_name:
-                    if self.is_valid_python_code(python_code):
-                        output_file = self.out_dir / f"{parser.camel_to_snake(enum_name)}.py"
-                        with open(output_file, "w", encoding="utf-8") as py_file:
-                            py_file.write(python_code)
-                        generated_files.append(output_file)
-                        print(f"Generated {output_file}")
-                    else:
-                        invalid_output_file = self.invalid_dir / f"{parser.camel_to_snake(enum_name)}.py"
-                        with open(invalid_output_file, "w", encoding="utf-8") as py_file:
-                            py_file.write(python_code)
-                        print(f"Invalid Python code. Moved to {invalid_output_file}")
+                    output_file = (
+                        self.out_dir / f"{parser.camel_to_snake(enum_name)}.py"
+                    )
+                    generated_files.append(output_file)
 
+                    with open(output_file, "w", encoding="utf-8") as py_file:
+                        py_file.write(self.add_copyright_header(python_code))
+
+                    print(f"Generated {output_file}")
         return generated_files
 
-    @staticmethod
-    def is_valid_python_code(code: str) -> bool:
+    def add_copyright_header(self, python_code: str) -> str:
         """
-        Check if the Python code string is valid by attempting to parse it.
+        Add the copyright header to the generated Python code.
 
         Args:
-            code (str): The Python code string.
+            python_code (str): The generated Python code.
 
         Returns:
-            bool: True if the Python code is valid, False otherwise.
+            str: The Python code with the copyright header.
         """
-        try:
-            ast.parse(code)
-            return True
-        except (SyntaxError, ValueError):
-            return False
+        header = '''"""
+BSD 3-Clause License
+
+Copyright (c) 2024, Philipp Reuter
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+
+'''
+        return header + python_code
 
     def create_init_py(self, generated_files: List[Path]) -> None:
         """
-        Create an __init__.py file with import statements for each generated valid Python file.
+        Create an __init__.py file with import statements for each generated Python file.
 
         Args:
-            generated_files (List[Path]): List of generated valid Python file paths.
+            generated_files (List[Path]): List of generated Python file paths.
         """
+        header = '''"""
+BSD 3-Clause License
+
+Copyright (c) 2024, Philipp Reuter
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions, and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions, and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+
+'''
         with open(self.out_dir / "__init__.py", "w", encoding="utf-8") as init_file:
+            init_file.write(header)
             for py_file in generated_files:
                 module_name = py_file.stem
                 class_name = "".join(word.title() for word in module_name.split("_"))
@@ -252,6 +285,7 @@ class EnumGenerator:
         """
         generated_files = self.process_typescript_files()
         self.create_init_py(generated_files)
+
 
 if __name__ == "__main__":
     # Directory paths

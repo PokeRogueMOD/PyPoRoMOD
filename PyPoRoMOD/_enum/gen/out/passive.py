@@ -16,6 +16,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 from enum import Enum
 
 
-class MoneyFormat(Enum):
-    NORMAL = 0
-    ABBREVIATED = 1
+class Passive(Enum):
+    UNLOCKED = 1
+    ENABLED = 2

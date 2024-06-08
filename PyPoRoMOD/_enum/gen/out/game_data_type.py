@@ -16,6 +16,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 from enum import Enum
 
 
-class MoneyFormat(Enum):
-    NORMAL = 0
-    ABBREVIATED = 1
+class GameDataType(Enum):
+    SYSTEM = 0
+    SESSION = 1
+    SETTINGS = 2
+    TUTORIALS = 3
+    SEEN_DIALOGUES = 4

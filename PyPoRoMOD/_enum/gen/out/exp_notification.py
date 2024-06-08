@@ -16,6 +16,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 from enum import Enum
 
 
-class MoneyFormat(Enum):
-    NORMAL = 0
-    ABBREVIATED = 1
+class ExpNotification(Enum):
+    DEFAULT = 0
+    ONLY_LEVEL_UP = 1
+    SKIP = 2
