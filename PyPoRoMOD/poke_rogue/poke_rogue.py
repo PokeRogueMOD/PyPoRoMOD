@@ -7,7 +7,7 @@ from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 from PyPoRoMOD.data_types.js_big_int import JSBigInt
 from PyPoRoMOD.data_types.js_int import JSInt
 from PyPoRoMOD.utils import ExitCommandLoop
-from PyPoRoMOD._enum import (
+from PyPoRoMOD.enum import (
     Achievements,
     SignatureSpecies,
     Species,

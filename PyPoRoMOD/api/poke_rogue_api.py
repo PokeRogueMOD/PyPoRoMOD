@@ -315,6 +315,8 @@ class PokeRogueAPI:
                 params={
                     "datatype": GameDataType.SYSTEM.value,
                     "clientSessionId": self.client_session_id,
+                    "trainerId": self._trainer_id,
+                    "secretId": self._secret_id
                 },
                 headers=self.json_headers,
             )

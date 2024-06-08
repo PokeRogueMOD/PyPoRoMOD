@@ -2,6 +2,8 @@ from enum import Enum
 
 
 class SignatureSpecies(Enum):
+    """SRC: https://github.com/pagefaultgames/pokerogue/blob/480a2568a91c19dcb961ebade7d1a51972675861/src/data/trainer-config.ts#L804-L934"""
+
     CLASSIC_VICTORY = 0  # This should have the number as per its actual index or omitted if not in the sequence
     BROCK = 1
     MISTY = 2

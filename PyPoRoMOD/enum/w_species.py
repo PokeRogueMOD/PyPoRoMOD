@@ -1,5 +1,5 @@
 # extended_enum.py
-from .gen import Species
+from .base import Species
 
 
 class WSpecies:
