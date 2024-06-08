@@ -1,0 +1,16 @@
+from enum import Enum
+
+
+class PartyUiMode(Enum):
+    SWITCH = 0
+    FAINT_SWITCH = 1
+    POST_BATTLE_SWITCH = 2
+    REVIVAL_BLESSING = 3
+    MODIFIER = 4
+    MOVE_MODIFIER = 5
+    TM_MODIFIER = 6
+    REMEMBER_MOVE_MODIFIER = 7
+    MODIFIER_TRANSFER = 8
+    SPLICE = 9
+    RELEASE = 10
+    CHECK = 11

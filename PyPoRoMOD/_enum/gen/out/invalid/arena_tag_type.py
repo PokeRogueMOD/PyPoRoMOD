@@ -21,3 +21,4 @@ ArenaTagType = {
     "CRAFTY_SHIELD": "CRAFTY_SHIELD",
     "TAILWIND": "TAILWIND"
 }
+}

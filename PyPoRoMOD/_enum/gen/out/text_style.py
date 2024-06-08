@@ -1,0 +1,27 @@
+from enum import Enum
+
+
+class TextStyle(Enum):
+    MESSAGE = 0
+    WINDOW = 1
+    WINDOW_ALT = 2
+    BATTLE_INFO = 3
+    PARTY = 4
+    PARTY_RED = 5
+    SUMMARY = 6
+    SUMMARY_ALT = 7
+    SUMMARY_RED = 8
+    SUMMARY_BLUE = 9
+    SUMMARY_PINK = 10
+    SUMMARY_GOLD = 11
+    SUMMARY_GRAY = 12
+    SUMMARY_GREEN = 13
+    MONEY = 14
+    STATS_LABEL = 15
+    STATS_VALUE = 16
+    SETTINGS_LABEL = 17
+    SETTINGS_SELECTED = 18
+    SETTINGS_LOCKED = 19
+    TOOLTIP_TITLE = 20
+    TOOLTIP_CONTENT = 21
+    MOVE_INFO_CONTENT = 22

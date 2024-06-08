@@ -7,7 +7,13 @@ from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 from PyPoRoMOD.data_types.js_big_int import JSBigInt
 from PyPoRoMOD.data_types.js_int import JSInt
 from PyPoRoMOD.utils import ExitCommandLoop
-from PyPoRoMOD._enum import Achievements, SignatureSpecies, Species, Unlockables
+from PyPoRoMOD._enum import (
+    Achievements,
+    SignatureSpecies,
+    Species,
+    Unlockables,
+    VoucherType,
+)
 
 from .mod import EggTier, GachaType, generate_eggs
 
@@ -381,11 +387,9 @@ class PokeRogue:
         self.trainer_upload()
         self.slots_upload()
 
-    def set_max_vouchers(self, number=JSInt._SAVE, upload=True):
+    def set_vouchers(self, number=JSInt._SAVE, upload=True):
         try:
-            self.trainer["voucherCounts"] = {
-                key: number for key in self.trainer["voucherCounts"]
-            }
+            self.trainer["voucherCounts"] = {enum.value: number for enum in VoucherType}
 
             logger.info(f"Set all vouchers count to [{number}].")
 
@@ -446,7 +450,7 @@ class PokeRogue:
             self.unlock_vouchers()
             self.mod_game_stats()
             self.mod_starters()
-            self.set_max_vouchers()
+            self.set_vouchers()
             self.set_hatch_waves_to_zero()
 
             logger.info("Account maxed out.")
@@ -488,7 +492,7 @@ class PokeRogue:
             "8": self.set_hatch_waves_to_zero,
             "9": self.mod_starters,
             "10": self.mod_game_stats,
-            "11": self.set_max_vouchers,
+            "11": self.set_vouchers,
             "12": self.unlock_modes,
             "13": self.unlock_achievements,
             "14": self.unlock_vouchers,
