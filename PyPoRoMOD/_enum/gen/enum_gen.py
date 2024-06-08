@@ -6,9 +6,11 @@ _DIR = Path(__file__).resolve().parent
 _OUT = _DIR / "out"
 _SRC = _DIR / "src"
 
+
 # Src: https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
 def camel_to_snake(s):
     return "".join(["_" + c.lower() if c.isupper() else c for c in s]).lstrip("_")
+
 
 def parse_typescript_enum(ts_enum: str):
     lines = iter(ts_enum.splitlines())
@@ -24,8 +26,8 @@ def parse_typescript_enum(ts_enum: str):
     for line in lines:
         line = line.strip()
 
-        # Skip empty lines
-        if not line:
+        # Skip empty lines and import lines
+        if not line or line.startswith("import"):
             continue
 
         # Extract the enum name
@@ -44,7 +46,7 @@ def parse_typescript_enum(ts_enum: str):
             comment_lines.append(line)
             if line.endswith("*/"):
                 inside_multiline_comment = False
-                
+
                 # Add comments above the enum field if present
                 if comment_lines:
                     if is_dict:
@@ -100,14 +102,18 @@ def parse_typescript_enum(ts_enum: str):
         if comment_lines:
             if is_dict:
                 for comment_line in comment_lines:
-                    python_dict += f"    \"\"\" {comment_line.strip('/* ').strip()} \"\"\"\n"
+                    python_dict += (
+                        f"    \"\"\" {comment_line.strip('/* ').strip()} \"\"\"\n"
+                    )
             else:
                 for comment_line in comment_lines:
-                    python_enum += f"    \"\"\" {comment_line.strip('/* ').strip()} \"\"\"\n"
+                    python_enum += (
+                        f"    \"\"\" {comment_line.strip('/* ').strip()} \"\"\"\n"
+                    )
             comment_lines = []  # Reset comment lines after adding them
 
         if is_dict:
-            python_dict += f"    \"{field}\": {value},\n"
+            python_dict += f'    "{field}": {value},\n'
         else:
             python_enum += f"    {field} = {value}\n"
         current_value += 1
@@ -117,6 +123,7 @@ def parse_typescript_enum(ts_enum: str):
         return python_dict, enum_name
     else:
         return python_enum, enum_name
+
 
 def process_typescript_files(src_path):
     for ts_file in src_path.glob("*.ts"):
@@ -131,6 +138,7 @@ def process_typescript_files(src_path):
                     py_file.write(python_code)
 
                 print(f"Generated {output_file}")
+
 
 # Ensure the output directory exists
 _OUT.mkdir(parents=True, exist_ok=True)

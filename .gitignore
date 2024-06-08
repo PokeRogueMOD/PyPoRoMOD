@@ -6,6 +6,7 @@
 accounts/
 log/
 .vscode/
+downloaded_repo/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

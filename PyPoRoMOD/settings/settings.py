@@ -7,16 +7,17 @@ LOG_LEVEL = "INFO"  # "INFO", "DEBUG"
 
 _DIR = Path(__file__).resolve().parent
 
-logger.remove()
-logger.add(
-    sys.stdout,
-    format=(
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-        "<level>{level: <8}</level> ㉿ "
-        "<level>{message}</level>"
-    ),
-    level=LOG_LEVEL,
-)
+if LOG_LEVEL == "INFO":
+    logger.remove()
+    logger.add(
+        sys.stdout,
+        format=(
+            "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+            "<level>{level: <8}</level> ㉿ "
+            "<level>{message}</level>"
+        ),
+        level=LOG_LEVEL,
+    )
 
 if LOG_FILE:
     _FILE_DIR = _DIR.parent.parent / "log"
@@ -31,5 +32,5 @@ if LOG_FILE:
             "<level>{level: <8}</level> ㉿ "
             "<level>{message}</level>"
         ),
-        level=LOG_LEVEL,
+        level="DEBUG",
     )

@@ -7,7 +7,7 @@ from PyPoRoMOD.api.poke_rogue_api import PokeRogueAPI
 from PyPoRoMOD.data_types.js_big_int import JSBigInt
 from PyPoRoMOD.data_types.js_int import JSInt
 from PyPoRoMOD.utils import ExitCommandLoop
-from PyPoRoMOD._enum import Achievements, SignatureSpecies, Species
+from PyPoRoMOD._enum import Achievements, SignatureSpecies, Species, Unlockables
 
 from .mod import EggTier, GachaType, generate_eggs
 
@@ -301,7 +301,7 @@ class PokeRogue:
         except Exception as e:
             logger.exception(e)
 
-    def trainer_2_json(self):
+    def trainer_download(self):
         trainer_dir = self._SAVE_PATH / self.username
         trainer_dir.mkdir(parents=True, exist_ok=True)
         trainer_file = trainer_dir / "trainer.json"
@@ -314,7 +314,22 @@ class PokeRogue:
         except Exception as e:
             logger.exception(e)
 
-    def slots_2_json(self):
+    def trainer_upload(self):
+        trainer_dir = self._SAVE_PATH / self.username
+        trainer_file = trainer_dir / "trainer.json"
+
+        if not trainer_file.exists():
+            logger.info(f"Download the trainer data first.")
+
+        try:
+            with open(trainer_file, "rb") as f:
+                json_data = json.load(f)
+                self.api.set_trainer(json_data)
+
+        except Exception as e:
+            logger.exception(e)
+
+    def slots_download(self):
         trainer_dir = self._SAVE_PATH / self.username
         trainer_dir.mkdir(parents=True, exist_ok=True)
 
@@ -332,9 +347,39 @@ class PokeRogue:
         except Exception as e:
             logger.exception(e)
 
-    def account_2_json(self):
-        self.trainer_2_json()
-        self.slots_2_json()
+    def slots_upload(self):
+        trainer_dir = self._SAVE_PATH / self.username
+
+        uploaded_slots = []
+        try:
+            for i, slot in enumerate(self.slots.values()):
+                if slot is not None:
+                    slot_counter = i + 1
+                    file_path = trainer_dir / f"slot {slot_counter}.json"
+                    if file_path.exists():
+                        with open(file_path, "rb") as f:
+                            json_data = json.load(f)
+                            self.api.set_slot(i, json_data)
+
+                            uploaded_slots.append(str(slot_counter))
+
+            if len(uploaded_slots) == 0:
+                logger.info("No slots to upload, download them first.")
+            else:
+                logger.info(
+                    f"Exported gamesave data [{', '.join(uploaded_slots)}] -> {trainer_dir / 'slot [1-5].json'}"
+                )
+
+        except Exception as e:
+            logger.exception(e)
+
+    def account_download(self):
+        self.trainer_download()
+        self.slots_download()
+
+    def account_upload(self):
+        self.trainer_upload()
+        self.slots_upload()
 
     def set_max_vouchers(self, number=JSInt._SAVE, upload=True):
         try:
@@ -352,10 +397,7 @@ class PokeRogue:
 
     def unlock_modes(self, upload=True):
         try:
-            if len(self.trainer["unlocks"]) == 0:
-                return logger.info("Unable to find data entry: unlocks")
-
-            self.trainer["unlocks"] = {key: True for key in self.trainer["unlocks"]}
+            self.trainer["unlocks"] = {enum.value: True for enum in Unlockables}
 
             logger.info("All modes unlocked.")
 
@@ -436,36 +478,45 @@ class PokeRogue:
 
         func = {
             "0": self.close,
-            "1": self.account_2_json,
-            "2": self.trainer_2_json,
-            "3": self.slots_2_json,
-            "4": self.generate_eggs,
-            "5": self.set_hatch_waves_to_zero,
-            "6": self.mod_starters,
-            "7": self.mod_game_stats,
-            "8": self.set_max_vouchers,
-            "9": self.unlock_modes,
-            "10": self.unlock_achievements,
-            "11": self.unlock_vouchers,
-            "12": self.one_click_max,
+            "1": self.account_download,
+            "2": self.account_upload,
+            "3": self.trainer_download,
+            "4": self.trainer_upload,
+            "5": self.slots_download,
+            "6": self.slots_upload,
+            "7": self.generate_eggs,
+            "8": self.set_hatch_waves_to_zero,
+            "9": self.mod_starters,
+            "10": self.mod_game_stats,
+            "11": self.set_max_vouchers,
+            "12": self.unlock_modes,
+            "13": self.unlock_achievements,
+            "14": self.unlock_vouchers,
+            "15": self.one_click_max,
         }
 
         cmd = "\n".join(
             [
                 "╔═════════════════════════ PyPoRoMOD COMMANDS ════════════════════════╗",
                 "╠═ 0: Close.                                                          ║",
-                "╠═ 1: Export all account data to JSON.                                ║",
-                "╠═ 2: Export trainer data to JSON.                                    ║",
-                "╠═ 3: Export all slots data to JSON.                                  ║",
-                "╠═ 4: Generate eggs.                                                  ║",
-                "╠═ 5: Hatch all eggs after next battle.                               ║",
-                "╠═ 6: Unlock all starter pokemon forms and variants shiny t3.         ║",
-                "╠═ 7: Set game stats to high values.                                  ║",
-                "╠═ 8: Set vouchers to max save to use amount.                         ║",
-                "╠═ 9: Unlock all game modes.                                          ║",
-                "╠═ 10: Unlock all achievements.                                       ║",
-                "╠═ 11: Unlock all vouchers.                                           ║",
-                "╠═ 12: 1-Click max account.                                           ║",
+                "║                                                                     ║",
+                "╠═ 1: Download ALL account data to JSON.                              ║",
+                "╠═ 2: Upload ALL account data to JSON.                                ║",
+                "╠═ 3: Download trainer data to JSON.                                  ║",
+                "╠═ 4: Upload trainer data to JSON.                                    ║",
+                "╠═ 5: Download slots data 1-5 to JSON if they exist.                  ║",
+                "╠═ 6: Upload slots data 1-5 to JSON if they exist.                    ║",
+                "║                                                                     ║",
+                "╠═ 7: Generate eggs.                                                  ║",
+                "╠═ 8: Hatch all eggs after next battle.                               ║",
+                "╠═ 9: Unlock all starter pokemon forms and variants shiny t3.         ║",
+                "╠═ 10: Set game stats to high values.                                 ║",
+                "╠═ 11: Set vouchers to max save to use amount.                        ║",
+                "╠═ 12: Unlock all game modes.                                         ║",
+                "╠═ 13: Unlock all achievements.                                       ║",
+                "╠═ 14: Unlock all vouchers.                                           ║",
+                "║                                                                     ║",
+                "╠═ 15: 1-Click max account.                                           ║",
                 "╚═════════════════════════════════════════════════════════════════════╝",
             ]
         )

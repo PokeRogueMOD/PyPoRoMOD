@@ -148,7 +148,7 @@ class PokeRogueAPI:
         endpoint: str,
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
-        params: Dict[str, Any] = {"datatype": 0},
+        params: Dict[str, Any] = {"datatype": GameDataType.SYSTEM.value},
         do_raise: bool = True,
         headers: bool = None,
     ) -> requests.Response:
@@ -184,7 +184,7 @@ class PokeRogueAPI:
     def get(
         self,
         endpoint: str,
-        params: Dict[str, Any] = {"datatype": 0},
+        params: Dict[str, Any] = {"datatype": GameDataType.SYSTEM.value},
         do_raise: bool = True,
         headers: bool = None,
     ) -> requests.Response:
@@ -209,7 +209,7 @@ class PokeRogueAPI:
         endpoint: str,
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
-        params: Dict[str, Any] = {"datatype": 0},
+        params: Dict[str, Any] = {"datatype": GameDataType.SYSTEM.value},
         do_raise: bool = True,
         headers: bool = None,
     ) -> requests.Response:
@@ -254,13 +254,20 @@ class PokeRogueAPI:
         """
         Retrieves trainer data from the API.
 
-        Source: https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/common.go#L55
+        Source: https://github.com/pagefaultgames/pokerogue/blob/3ef495c12688532d3b4e1c097bca3d3c5cea3b57/src/system/game-data.ts#L338
 
         Returns:
             Optional[Dict[str, Any]]: The trainer data, or None if an error occurs.
         """
         try:
-            response = self.get("savedata/get", do_raise=False)
+            response = self.get(
+                "savedata/system",
+                do_raise=False,
+                params={
+                    "datatype": GameDataType.SYSTEM.value,
+                    "clientSessionId": self.client_session_id,
+                },
+            )
             logger.debug(response)
 
             if response.status_code == 404:
@@ -305,7 +312,10 @@ class PokeRogueAPI:
             response = self.post(
                 "savedata/update",
                 json=trainer,
-                params={"datatype": GameDataType.SYSTEM.value},
+                params={
+                    "datatype": GameDataType.SYSTEM.value,
+                    "clientSessionId": self.client_session_id,
+                },
                 headers=self.json_headers,
             )
             logger.debug(response)
@@ -337,8 +347,12 @@ class PokeRogueAPI:
         """
         try:
             response = self.get(
-                "savedata/get",
-                params={"datatype": 1, "slot": slot_index},
+                "savedata/session",
+                params={
+                    "datatype": GameDataType.SESSION.value,
+                    "clientSessionId": self.client_session_id,
+                    "slot": slot_index,
+                },
                 do_raise=False,
             )
             logger.debug(response)
@@ -382,11 +396,13 @@ class PokeRogueAPI:
                 "savedata/update",
                 json=data,
                 params={
-                    "datatype": 1,
+                    "datatype": GameDataType.SESSION.value,
                     "slot": slot_index,
+                    "clientSessionId": self.client_session_id,
                     "trainerId": self._trainer_id,
                     "secretId": self._secret_id,
                 },
+                headers=self.json_headers,
             )
             logger.debug(response)
 
