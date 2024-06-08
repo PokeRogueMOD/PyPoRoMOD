@@ -138,7 +138,7 @@ class PokeRogue:
                     self.trainer["eggs"].extend(new_eggs)
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
             logger.info(f"[{count}] eggs got generated.")
 
@@ -159,7 +159,7 @@ class PokeRogue:
                 egg["hatchWaves"] = 0
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
             logger.info("All eggs will hatch after the next battle.")
 
@@ -257,7 +257,7 @@ class PokeRogue:
             ).value
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
             logger.info("All starter pokemon modded.")
 
@@ -300,7 +300,7 @@ class PokeRogue:
             game_stats["trainersDefeated"] = number
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
             logger.info("All game stats updated.")
 
@@ -394,7 +394,7 @@ class PokeRogue:
             logger.info(f"Set all vouchers count to [{number}].")
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
         except Exception as e:
             logger.exception(e)
@@ -406,7 +406,7 @@ class PokeRogue:
             logger.info("All modes unlocked.")
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
         except Exception as e:
             logger.exception(e)
@@ -422,7 +422,7 @@ class PokeRogue:
             logger.info("All achievements unlocked.")
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
         except Exception as e:
             logger.exception(e)
@@ -438,7 +438,7 @@ class PokeRogue:
             logger.info("All vouchers unlocked.")
 
             if upload:
-                self.api.set_trainer(self.trainer)
+                self.api.set_trainer(self.trainer, self)
 
         except Exception as e:
             logger.exception(e)

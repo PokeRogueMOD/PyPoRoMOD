@@ -3,7 +3,7 @@ from .js_number import JSNumber
 
 class JSInt(JSNumber):
     """
-    Source Code: https://github.com/pagefaultgames/pokerogue/blob/6b31db0bc52712da489a69bea6b9a3f6c0887884/src/system/game-data.ts#L296
+    Source Code: https://github.com/pagefaultgames/pokerogue/blob/751e28d2fc8a8b36f1882cee69b8b247cc4c225c/src/system/game-data.ts#L1110
 
     A class representing a JavaScript-like integer with constraints.
     """

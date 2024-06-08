@@ -23,7 +23,7 @@ class SystemSaveData:
     gameStats: GameStats
     unlocks: Unlocks
     achvUnlocks: AchvUnlocks
-    voucherUnlocks: VoucherUnlocks
+    voucherUnlocks: VoucherUnlocks  
     voucherCounts: VoucherCounts
     eggs: list[EggData]
     gameVersion: str

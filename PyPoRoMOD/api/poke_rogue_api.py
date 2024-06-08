@@ -62,13 +62,11 @@ class PokeRogueAPI:
         self.headers = self._generate_random_headers()
         self.client_session_id = self.get_client_session_id()
 
-        self._secret_id: Optional[str] = None
-        self._trainer_id: Optional[str] = None
+        self.secret_id: Optional[str] = None
+        self.trainer_id: Optional[str] = None
+        self.last_session_slot: Optional[str] = None
 
         self._login()
-        self.json_headers = (
-            self._get_json_headers()
-        )  # After login get the jeaders for updateing data
 
     @staticmethod
     def _generate_random_headers() -> Dict[str, str]:
@@ -245,10 +243,26 @@ class PokeRogueAPI:
 
             self.headers["authorization"] = response.json()["token"]
 
+            self.json_headers = self._get_json_headers()
+
         except Exception as e:
             logger.info("Couldn't Login! (Incorrect credentials or server down.)")
             logger.exception(e)
             raise LoginError()
+
+    def _verify(self):
+        try:
+            # verify session?
+            response = self.post(
+                "savedata/system/verify",
+                json={"clientSessionId": self.client_session_id},
+                params={},
+                headers=self.json_headers,
+            )
+            logger.debug(response)
+
+        except Exception as e:
+            logger.exception(e)
 
     def get_trainer(self) -> Optional[Dict[str, Any]]:
         """
@@ -260,7 +274,7 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The trainer data, or None if an error occurs.
         """
         try:
-            response = self.get(
+            response_system = self.get(
                 "savedata/system",
                 do_raise=False,
                 params={
@@ -268,22 +282,36 @@ class PokeRogueAPI:
                     "clientSessionId": self.client_session_id,
                 },
             )
-            logger.debug(response)
+            response_info = self.get(
+                "account/info",
+                do_raise=False,
+                params={
+                    "datatype": GameDataType.SYSTEM.value,
+                    "clientSessionId": self.client_session_id,
+                },
+            )
 
-            if response.status_code == 404:
+            logger.debug(response_system)
+            logger.debug(response_info)
+
+            if response_system.status_code == 404 or response_info.status_code == 404:
                 logger.info(
                     f"You need to atleast play a gamesave unil stage 2 for this tool to work!"
                 )
                 raise NewAccountError()
 
-            trainer: dict = response.json()
+            trainer: dict = response_system.json()
+            info: dict = response_info.json()
 
             logger.debug("Trainer data data downloaded.")
 
-            self._trainer_id = trainer["trainerId"]
-            self._secret_id = trainer["secretId"]
+            self.trainer_id = trainer["trainerId"]
+            self.secret_id = trainer["secretId"]
+            self.last_session_slot = info["lastSessionSlot"]
 
-            logger.debug(f"[{self._trainer_id = }] & [{self._secret_id = }]")
+            logger.debug(
+                f"[{self.trainer_id = }] & [{self.secret_id = }] & [{self.last_session_slot = }]"
+            )
 
             return trainer
 
@@ -293,7 +321,7 @@ class PokeRogueAPI:
             logger.exception(e)
             return None
 
-    def set_trainer(self, trainer: Dict[str, Any]) -> bool:
+    def set_trainer(self, trainer: Dict[str, Any], parent) -> bool:
         """
         Updates trainer data on the API.
 
@@ -309,14 +337,21 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
+            # new_data = {
+            #     "clientSessionId": self.client_session_id,
+            #     "session": parent.slots[self.last_session_slot],
+            #     "sessionSlotId": self.last_session_slot,
+            #     "clientSessionId": self.client_session_id,
+            # }
+            self._verify()
             response = self.post(
                 "savedata/update",
-                json=trainer,
+                json=json.dumps(trainer),
                 params={
                     "datatype": GameDataType.SYSTEM.value,
+                    # "trainerId": self.trainer_id,
+                    # "secretId": self.secret_id,
                     "clientSessionId": self.client_session_id,
-                    "trainerId": self._trainer_id,
-                    "secretId": self._secret_id
                 },
                 headers=self.json_headers,
             )
@@ -390,7 +425,7 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            if self._trainer_id is None or self._secret_id is None:
+            if self.trainer_id is None or self.secret_id is None:
                 # To update the trainer and secret id.
                 self.get_trainer()
 
@@ -401,8 +436,8 @@ class PokeRogueAPI:
                     "datatype": GameDataType.SESSION.value,
                     "slot": slot_index,
                     "clientSessionId": self.client_session_id,
-                    "trainerId": self._trainer_id,
-                    "secretId": self._secret_id,
+                    "trainerId": self.trainer_id,
+                    "secretId": self.secret_id,
                 },
                 headers=self.json_headers,
             )
@@ -464,8 +499,9 @@ class PokeRogueAPI:
         """
         self.session.close()
         self.session = None
-        self._secret_id = None
-        self._trainer_id = None
+        self.secret_id = None
+        self.trainer_id = None
+        self.last_session_slot = None
         self.api_url = None
         self.username = None
         self.password = None

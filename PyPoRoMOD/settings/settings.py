@@ -3,7 +3,7 @@ import sys
 from loguru import logger
 
 LOG_FILE = False
-LOG_LEVEL = "INFO"  # "INFO", "DEBUG"
+LOG_LEVEL = "DEBUG"  # "INFO", "DEBUG"
 
 _DIR = Path(__file__).resolve().parent
 

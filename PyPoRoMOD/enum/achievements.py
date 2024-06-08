@@ -2,10 +2,6 @@ from enum import Enum
 
 
 class Achievements(Enum):
-    """
-    Src Code: https://github.com/pagefaultgames/pokerogue/blob/46dc7e9b01ee94bd8905e1ebbe260bb523884791/src/system/achv.ts#L219C1-L260C3
-    """
-
     _10K_MONEY = 0
     _100K_MONEY = 1
     _1M_MONEY = 2
@@ -46,3 +42,30 @@ class Achievements(Enum):
     HIDDEN_ABILITY = 37
     PERFECT_IVS = 38
     CLASSIC_VICTORY = 39
+    MONO_GEN_ONE_VICTORY = 40
+    MONO_GEN_TWO_VICTORY = 41
+    MONO_GEN_THREE_VICTORY = 42
+    MONO_GEN_FOUR_VICTORY = 43
+    MONO_GEN_FIVE_VICTORY = 44
+    MONO_GEN_SIX_VICTORY = 45
+    MONO_GEN_SEVEN_VICTORY = 46
+    MONO_GEN_EIGHT_VICTORY = 47
+    MONO_GEN_NINE_VICTORY = 48
+    MONO_NORMAL = 49
+    MONO_FIGHTING = 50
+    MONO_FLYING = 51
+    MONO_POISON = 52
+    MONO_GROUND = 53
+    MONO_ROCK = 54
+    MONO_BUG = 55
+    MONO_GHOST = 56
+    MONO_STEEL = 57
+    MONO_FIRE = 58
+    MONO_WATER = 59
+    MONO_GRASS = 60
+    MONO_ELECTRIC = 61
+    MONO_PSYCHIC = 62
+    MONO_ICE = 63
+    MONO_DRAGON = 64
+    MONO_DARK = 65
+    MONO_FAIRY = 66
