@@ -1,11 +1,14 @@
 > [!IMPORTANT]  
-> **The content of this repo is a proof of concept and is for educational purposes only!**
+> **⚠️ The content of this repo is a proof of concept and is for educational purposes only! ⚠️**
+
+> [!TIP]
+> <ins>**I fixed the API. Everything should work again! (12. June 2024)**</ins>
 
 > [!CAUTION]
-> [This tool can cause your account to be flagged, I have had no problems so far, but be warned! Devs changed something, can no longer save data! [Error 403]](https://www.reddit.com/r/pokerogue/comments/1d8ldlw/a_cheating_and_account_deletionwipe_followup/)
+> This tool can cause your account to be flagged, I have had no problems so far, but be warned, you can read about it [here](https://www.reddit.com/r/pokerogue/comments/1d8ldlw/a_cheating_and_account_deletionwipe_followup/)!
 
 > [!Note]
-> Since there was some unnecessary drama regarding the so-called `RogueEditor`, I decided to just make my own account modification tool from scratch, based only on the [source code](https://github.com/pagefaultgames/pokerogue). My goal is to focus on adding new features that do not exist yet, after I added all base functionalitys, but using custom python classes to ensure I only generate valid data, not exceeding any limits.
+> Since there was some unnecessary drama regarding the so-called `RogueEditor`, I decided to just make my own account modification tool from scratch, based only on the [source code](https://github.com/pagefaultgames/pokerogue). I decided to focus on my JS version with a Overlay and will add all of these features and more hacks, while playing the game in Browser, you can find the Project [here](https://github.com/PokeRogueMOD/JsPoRoMOD).
 
 # PyPoRoMOD
 
