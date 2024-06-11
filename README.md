@@ -1,6 +1,9 @@
 > [!IMPORTANT]  
 > **The content of this repo is a proof of concept and is for educational purposes only!**
 
+> [!TIP]
+> I fixed the API. Everything should work again! (12. June 2024)
+
 > [!CAUTION]
 > [This tool can cause your account to be flagged, I have had no problems so far, but be warned! Devs changed something, can no longer save data! [Error 403]](https://www.reddit.com/r/pokerogue/comments/1d8ldlw/a_cheating_and_account_deletionwipe_followup/)
 
