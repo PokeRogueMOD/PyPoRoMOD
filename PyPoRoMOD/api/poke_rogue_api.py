@@ -2,6 +2,7 @@ from enum import Enum
 import json
 import secrets
 import string
+import time
 import requests
 import random
 from urllib.parse import urljoin
@@ -259,7 +260,8 @@ class PokeRogueAPI:
                 params={},
                 headers=self.json_headers,
             )
-            logger.debug(response)
+            response.raise_for_status()
+            return response.json()
 
         except Exception as e:
             logger.exception(e)
@@ -337,34 +339,34 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            # new_data = {
-            #     "clientSessionId": self.client_session_id,
-            #     "session": parent.slots[self.last_session_slot],
-            #     "sessionSlotId": self.last_session_slot,
-            #     "clientSessionId": self.client_session_id,
-            # }
-            self._verify()
-            response = self.post(
-                "savedata/update",
-                json=json.dumps(trainer),
-                params={
-                    "datatype": GameDataType.SYSTEM.value,
-                    # "trainerId": self.trainer_id,
-                    # "secretId": self.secret_id,
+            verify = self._verify()
+            if verify.get("valid", False):
+                trainer["timestamp"] = int(time.time() * 1000)
+                new_data = {
+                    "system": trainer,
+                    "session": parent.slots[self.last_session_slot],
+                    "sessionSlotId": self.last_session_slot,
                     "clientSessionId": self.client_session_id,
-                },
-                headers=self.json_headers,
-            )
-            logger.debug(response)
+                }
 
-            is_success = response.status_code == 200
+                response = self.post(
+                    "savedata/updateall",
+                    json=new_data,
+                    params={},
+                    headers=self.json_headers,
+                )
+                logger.debug(response)
 
-            if is_success:
-                logger.debug(f"Trainer data uploaded.")
+                is_success = response.status_code == 200
+
+                if is_success:
+                    logger.debug(f"Trainer data uploaded.")
+                else:
+                    logger.debug(f"Couldn't upload trainer data.")
+
+                return is_success
             else:
-                logger.debug(f"Couldn't upload trainer data.")
-
-            return is_success
+                logger.info("Session not valid.")
 
         except Exception as e:
             logger.exception(e)
