@@ -330,7 +330,7 @@ class PokeRogue:
         try:
             with open(trainer_file, "rb") as f:
                 json_data = json.load(f)
-                self.api.set_trainer(json_data)
+                self.api.set_trainer(json_data, self)
 
         except Exception as e:
             logger.exception(e)
