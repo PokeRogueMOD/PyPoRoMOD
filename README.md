@@ -1,5 +1,5 @@
 > [!IMPORTANT]  
-> **The content of this repo is a proof of concept and is for educational purposes only!**
+> **⚠️ The content of this repo is a proof of concept and is for educational purposes only! ⚠️**
 
 > [!TIP]
 > I fixed the API. Everything should work again! (12. June 2024)
