@@ -67,7 +67,7 @@ class PokeRogue:
     def generate_eggs(self, upload=True):
         """Generate eggs by using user inputs."""
         try:
-            egg_len = len(self.trainer.get("eggs", []))
+            egg_len = len(self.trainer.get("eggs", []) or [])
 
             if egg_len >= 75:
                 replace_or_add = input(
@@ -278,7 +278,7 @@ class PokeRogue:
             game_stats["highestEndlessWave"] = number
             game_stats["highestHeal"] = number
             game_stats["highestLevel"] = number
-            game_stats["highestMoney"] = number
+            game_stats["highestMoney"] = JSBigInt._MAX
             game_stats["legendaryEggsPulled"] = number
             game_stats["legendaryPokemonCaught"] = number
             game_stats["legendaryPokemonHatched"] = number
@@ -315,7 +315,7 @@ class PokeRogue:
         try:
             with open(trainer_file, "w") as f:
                 f.write(json.dumps(self.trainer, indent=2))
-                logger.info(f"Your trainer data has been dumped! -> {trainer_file}")
+                logger.info(f"Downloaded trainer data -> '{trainer_file}'")
 
         except Exception as e:
             logger.exception(e)
@@ -331,6 +331,7 @@ class PokeRogue:
             with open(trainer_file, "rb") as f:
                 json_data = json.load(f)
                 self.api.set_trainer(json_data, self)
+                logger.info("Uploaded trainer data.")
 
         except Exception as e:
             logger.exception(e)
@@ -345,10 +346,13 @@ class PokeRogue:
                 if slot is not None:
                     with open(trainer_dir / f"slot {i + 1}.json", "w") as f:
                         f.write(json.dumps(slot, indent=4))
-                        saved_slots.append(str(i))
-            logger.info(
-                f"Exported gamesave data [{', '.join(saved_slots)}] -> {trainer_dir / 'slot [1-5].json'}"
-            )
+                        saved_slots.append(str(i + 1))
+
+            if len(saved_slots) == 0:
+                logger.info("No gamesave data to download!")
+            else:
+                file_str = f"slot [{', '.join(saved_slots)}].json"
+                logger.info(f"Downloaded gamesave data -> {trainer_dir / file_str}")
 
         except Exception as e:
             logger.exception(e)
@@ -367,14 +371,13 @@ class PokeRogue:
                             json_data = json.load(f)
                             self.api.set_slot(i, json_data)
 
-                            uploaded_slots.append(str(slot_counter))
+                            uploaded_slots.append(str(slot_counter + 1))
 
             if len(uploaded_slots) == 0:
                 logger.info("No slots to upload, download them first.")
             else:
-                logger.info(
-                    f"Exported gamesave data [{', '.join(uploaded_slots)}] -> {trainer_dir / 'slot [1-5].json'}"
-                )
+                file_str = f"slot [{', '.join(uploaded_slots)}].json"
+                logger.info(f"Downloaded gamesave data -> {trainer_dir / file_str}")
 
         except Exception as e:
             logger.exception(e)
@@ -393,10 +396,10 @@ class PokeRogue:
                 str(enum.value): number for enum in VoucherType
             }
 
-            logger.info(f"Set all vouchers count to [{number}].")
-
             if upload:
                 self.api.set_trainer(self.trainer, self)
+
+            logger.info(f"Set all vouchers count to [{number}].")
 
         except Exception as e:
             logger.exception(e)
@@ -405,10 +408,10 @@ class PokeRogue:
         try:
             self.trainer["unlocks"] = {str(enum.value): True for enum in Unlockables}
 
-            logger.info("All modes unlocked.")
-
             if upload:
                 self.api.set_trainer(self.trainer, self)
+
+            logger.info("All modes unlocked.")
 
         except Exception as e:
             logger.exception(e)
@@ -421,10 +424,10 @@ class PokeRogue:
                 achievement.name: timestamp_ms for achievement in Achievements
             }
 
-            logger.info("All achievements unlocked.")
-
             if upload:
                 self.api.set_trainer(self.trainer, self)
+
+            logger.info("All achievements unlocked.")
 
         except Exception as e:
             logger.exception(e)
@@ -437,10 +440,10 @@ class PokeRogue:
                 trainer.name: timestamp_ms for trainer in SignatureSpecies
             }
 
-            logger.info("All vouchers unlocked.")
-
             if upload:
                 self.api.set_trainer(self.trainer, self)
+
+            logger.info("All vouchers unlocked.")
 
         except Exception as e:
             logger.exception(e)

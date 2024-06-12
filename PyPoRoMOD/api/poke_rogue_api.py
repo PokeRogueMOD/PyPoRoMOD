@@ -397,6 +397,7 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
+            self._verify()
             response = self.post(
                 "savedata/update",
                 json=trainer,
@@ -404,16 +405,16 @@ class PokeRogueAPI:
                     "datatype": GameDataType.SYSTEM.value,
                     "clientSessionId": self.client_session_id,
                 },
-                headers=self.json_headers,
+                headers=self.headers,
             )
             logger.debug(response)
 
             is_success = response.status_code == 200
 
             if is_success:
-                logger.debug(f"New Trainer data uploaded.")
+                logger.debug(f"New Trainer data set.")
             else:
-                logger.debug(f"Couldn't upload new trainer data.")
+                logger.debug(f"Couldn't set new trainer data.")
 
             return is_success
 

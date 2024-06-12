@@ -78,12 +78,12 @@ class AccountUnlocker:
             "voucherUnlocks": {},
             "voucherCounts": {str(enum.value): 0 for enum in VoucherType},
             "eggs": [],
-            "eggPity": [0, 0, 0, 0],
-            "unlockPity": [0, 0, 0, 0],
+            "eggPity": [0] * 4,
+            "unlockPity": [0] * 4,
             "gameVersion": "1.0.4",
             "timestamp": int(time.time() * 1000),
         }
-        return data  # json.loads(json.dumps(data, default=cls.trainer_2_str))
+        return json.loads(json.dumps(data, default=cls.trainer_2_str))  # data
 
     @classmethod
     def get_new_game_stats(cls) -> Dict[str, int]:
