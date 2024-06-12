@@ -1,21 +1,16 @@
 from enum import Enum
 import json
-import secrets
+import random
 import string
 import time
 import requests
 import random
 from urllib.parse import urljoin
 from loguru import logger
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
-
-class GameDataType(Enum):
-    SYSTEM = 0
-    SESSION = 1
-    SETTINGS = 2
-    TUTORIALS = 3
-    SEEN_DIALOGUES = 4
+from .account_unlocker import AccountUnlocker
+from PyPoRoMOD.enum import GameDataType
 
 
 class LoginError(Exception):
@@ -65,7 +60,7 @@ class PokeRogueAPI:
 
         self.secret_id: Optional[str] = None
         self.trainer_id: Optional[str] = None
-        self.last_session_slot: Optional[str] = None
+        self.last_session_slot: Optional[str] = -1
 
         self._login()
 
@@ -276,14 +271,6 @@ class PokeRogueAPI:
             Optional[Dict[str, Any]]: The trainer data, or None if an error occurs.
         """
         try:
-            response_system = self.get(
-                "savedata/system",
-                do_raise=False,
-                params={
-                    "datatype": GameDataType.SYSTEM.value,
-                    "clientSessionId": self.client_session_id,
-                },
-            )
             response_info = self.get(
                 "account/info",
                 do_raise=False,
@@ -292,17 +279,29 @@ class PokeRogueAPI:
                     "clientSessionId": self.client_session_id,
                 },
             )
+            response_system = self.get(
+                "savedata/system",
+                do_raise=False,
+                params={
+                    "datatype": GameDataType.SYSTEM.value,
+                    "clientSessionId": self.client_session_id,
+                },
+            )
 
-            logger.debug(response_system)
             logger.debug(response_info)
+            logger.debug(response_system)
 
-            if response_system.status_code == 404 or response_info.status_code == 404:
+            if response_system.status_code == 404:
                 logger.info(
                     f"You need to atleast play a gamesave unil stage 2 for this tool to work!"
                 )
+                # Does not work (400 Client Error, data should be correct!)
+                # trainer = AccountUnlocker.get_new_trainer()
+                # self.set_new_trainer(trainer)
                 raise NewAccountError()
+            else:
+                trainer: dict = response_system.json()
 
-            trainer: dict = response_system.json()
             info: dict = response_info.json()
 
             logger.debug("Trainer data data downloaded.")
@@ -342,17 +341,27 @@ class PokeRogueAPI:
             verify = self._verify()
             if verify.get("valid", False):
                 trainer["timestamp"] = int(time.time() * 1000)
-                new_data = {
-                    "system": trainer,
-                    "session": parent.slots[self.last_session_slot],
-                    "sessionSlotId": self.last_session_slot,
-                    "clientSessionId": self.client_session_id,
-                }
+                # session = parent.slots[self.last_session_slot]
+                # new_data = {
+                #     "system": trainer,
+                #     "session": session,
+                #     "sessionSlotId": self.last_session_slot,
+                #     "clientSessionId": self.client_session_id,
+                # }
+                # response = self.post(
+                #     "savedata/updateall",
+                #     json=new_data,
+                #     params={},
+                #     headers=self.json_headers,
+                # )
 
                 response = self.post(
-                    "savedata/updateall",
-                    json=new_data,
-                    params={},
+                    "savedata/update",
+                    json=trainer,
+                    params={
+                        "datatype": GameDataType.SYSTEM.value,
+                        "clientSessionId": self.client_session_id,
+                    },
                     headers=self.json_headers,
                 )
                 logger.debug(response)
@@ -363,6 +372,50 @@ class PokeRogueAPI:
                     logger.debug(f"Trainer data uploaded.")
                 else:
                     logger.debug(f"Couldn't upload trainer data.")
+
+                return is_success
+            else:
+                logger.info("Session not valid.")
+
+        except Exception as e:
+            logger.exception(e)
+            return False
+
+    def set_new_trainer(self, trainer: str) -> bool:
+        """
+        Updates trainer data on the API.
+
+        Source:
+            - https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/common.go#L56
+            - https://github.com/pagefaultgames/rogueserver/blob/68caa148f6a965f01ea503d42f56daad6799e5f7/api/endpoints.go#L410
+            - https://github.com/pagefaultgames/pokerogue/blob/20a3a4f60fe58a5fe929a51dff76a5db64080492/src/system/game-data.ts#L302
+
+        Args:
+            trainer (Dict[str, Any]): The trainer data to update.
+
+        Returns:
+            bool: True if the update is successful, False otherwise.
+        """
+        try:
+            verify = self._verify()
+            if verify.get("valid", False):
+                response = self.post(
+                    "savedata/update",
+                    data=trainer,
+                    params={
+                        "datatype": GameDataType.SYSTEM.value,
+                        "clientSessionId": self.client_session_id,
+                    },
+                    headers=self.headers,
+                )
+                logger.debug(response)
+
+                is_success = response.status_code == 200
+
+                if is_success:
+                    logger.debug(f"New Trainer data uploaded.")
+                else:
+                    logger.debug(f"Couldn't upload new trainer data.")
 
                 return is_success
             else:
@@ -476,7 +529,7 @@ class PokeRogueAPI:
             response = requests.post(
                 urljoin(cls.BASE_URL, "account/register"),
                 data={"username": username, "password": password},
-                headers=cls.generate_random_headers(),
+                headers=cls._generate_random_headers(),
             )
             logger.debug(response)
 

@@ -389,7 +389,9 @@ class PokeRogue:
 
     def set_vouchers(self, number=JSInt._SAVE, upload=True):
         try:
-            self.trainer["voucherCounts"] = {enum.value: number for enum in VoucherType}
+            self.trainer["voucherCounts"] = {
+                str(enum.value): number for enum in VoucherType
+            }
 
             logger.info(f"Set all vouchers count to [{number}].")
 
@@ -401,7 +403,7 @@ class PokeRogue:
 
     def unlock_modes(self, upload=True):
         try:
-            self.trainer["unlocks"] = {enum.value: True for enum in Unlockables}
+            self.trainer["unlocks"] = {str(enum.value): True for enum in Unlockables}
 
             logger.info("All modes unlocked.")
 
