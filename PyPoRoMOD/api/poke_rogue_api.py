@@ -397,29 +397,25 @@ class PokeRogueAPI:
             bool: True if the update is successful, False otherwise.
         """
         try:
-            verify = self._verify()
-            if verify.get("valid", False):
-                response = self.post(
-                    "savedata/update",
-                    data=trainer,
-                    params={
-                        "datatype": GameDataType.SYSTEM.value,
-                        "clientSessionId": self.client_session_id,
-                    },
-                    headers=self.headers,
-                )
-                logger.debug(response)
+            response = self.post(
+                "savedata/update",
+                json=trainer,
+                params={
+                    "datatype": GameDataType.SYSTEM.value,
+                    "clientSessionId": self.client_session_id,
+                },
+                headers=self.json_headers,
+            )
+            logger.debug(response)
 
-                is_success = response.status_code == 200
+            is_success = response.status_code == 200
 
-                if is_success:
-                    logger.debug(f"New Trainer data uploaded.")
-                else:
-                    logger.debug(f"Couldn't upload new trainer data.")
-
-                return is_success
+            if is_success:
+                logger.debug(f"New Trainer data uploaded.")
             else:
-                logger.info("Session not valid.")
+                logger.debug(f"Couldn't upload new trainer data.")
+
+            return is_success
 
         except Exception as e:
             logger.exception(e)

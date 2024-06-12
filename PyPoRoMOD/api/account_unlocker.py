@@ -25,6 +25,8 @@ from PyPoRoMOD.enum import (
     DexAttr,
     Nature,
     defaultStarterSpecies,
+    speciesStarters,
+    AbilityAttr,
 )
 
 
@@ -81,7 +83,7 @@ class AccountUnlocker:
             "gameVersion": "1.0.4",
             "timestamp": int(time.time() * 1000),
         }
-        return json.loads(json.dumps(data, default=cls.trainer_2_str))
+        return data  # json.loads(json.dumps(data, default=cls.trainer_2_str))
 
     @classmethod
     def get_new_game_stats(cls) -> Dict[str, int]:
@@ -182,7 +184,7 @@ class AccountUnlocker:
             Dict[int, Dict[str, object]]: A dictionary containing the default starter data.
         """
         starterData = {}
-        starterSpeciesIds = [species.value for species in defaultStarterSpecies]
+        starterSpeciesIds = [species.value for species in speciesStarters.keys()]
 
         for speciesId in starterSpeciesIds:
             speciesId_value = str(speciesId)
@@ -191,7 +193,11 @@ class AccountUnlocker:
                 "eggMoves": 0,
                 "candyCount": 0,
                 "friendship": 0,
-                "abilityAttr": 1 if speciesId in starterSpeciesIds else 0,
+                "abilityAttr": (
+                    AbilityAttr.ABILITY_1.value
+                    if Species(speciesId) in defaultStarterSpecies
+                    else 0
+                ),
                 "passiveAttr": 0,
                 "valueReduction": 0,
                 "classicWinCount": 0,
