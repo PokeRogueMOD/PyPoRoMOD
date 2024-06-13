@@ -9,9 +9,8 @@
 
 > [!Note]
 > Since there was some unnecessary drama regarding the so-called `RogueEditor`, I decided to just make my own account modification tool from scratch, based only on the [source code](https://github.com/pagefaultgames/pokerogue). I decided to focus on my JS version with a Overlay and will add all of these features and more hacks, while playing the game in Browser, you can find the Project [here](https://github.com/PokeRogueMOD/JsPoRoMOD).
-
-> [!IMPORTANT]  
-> **⚠️ Regarding the drama with `RogueEdit` and the misleading information and lies, you can find more details [here](./DRAMA/README.md).  ⚠️**
+ 
+# **⚠️ Regarding the drama with `RogueEdit` and the misleading information and lies, you can find more details [here](./DRAMA/README.md).  ⚠️**
 
 # PyPoRoMOD
 
