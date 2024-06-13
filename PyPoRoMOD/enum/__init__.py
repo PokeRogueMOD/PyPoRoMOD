@@ -7,3 +7,4 @@ from .dex_attr import DexAttr
 from .default_starter_species import defaultStarterSpecies
 from .species_starters import speciesStarters
 from .ability_attr import AbilityAttr
+from .species_egg_moves import speciesEggMoves
