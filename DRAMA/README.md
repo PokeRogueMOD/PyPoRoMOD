@@ -44,4 +44,4 @@ Thanks for your understanding and support.
 ## My Enum Generator and Enums
 
 -   https://github.com/PokeRogueMOD/PyPoRoMOD/blob/main/PyPoRoMOD/enum/base/enum_generator.py
--   [All generated Enums, feel free to use them!]https://github.com/PokeRogueMOD/PyPoRoMOD/tree/main/PyPoRoMOD/enum/base/_base
+-   [All generated Enums, feel free to use them!](https://github.com/PokeRogueMOD/PyPoRoMOD/tree/main/PyPoRoMOD/enum/base/_base)
