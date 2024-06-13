@@ -8,9 +8,7 @@
 > This tool can cause your account to be flagged, I have had no problems so far, but be warned, you can read about it [here](https://www.reddit.com/r/pokerogue/comments/1d8ldlw/a_cheating_and_account_deletionwipe_followup/)!
 
 > [!Note]
-> Since there was some unnecessary drama regarding the so-called `RogueEditor`, I decided to just make my own account modification tool from scratch, based only on the [source code](https://github.com/pagefaultgames/pokerogue). I decided to focus on my JS version with a Overlay and will add all of these features and more hacks, while playing the game in Browser, you can find the Project [here](https://github.com/PokeRogueMOD/JsPoRoMOD).
- 
-# **⚠️ Regarding the drama with `RogueEdit` and the misleading information and lies, you can find more details [here](./DRAMA/README.md).  ⚠️**
+> Since i dont want any drama, but just dont want false claims to be spread around users and devs, i made the statement with proof that i made the egg generator and are not "overflowing values", this is a fun tool to glich accounts, so use it only on a test account, the account will be 100% flagged with this tool, but its only for the account you use, not ip related as far as i know, but i will never know since i dont play ladder or multiplayer! And yes I use ChatGPT 4o if you want to have a video tutorial how I do everything and what my tipps are with ChatGPT let me know im allways happy to share my knowlage. You can use my code for your project, the only thing that would be nice is a comment in the code saying its from me, or a mention in the readme, even if its at the bottom of the page. I will not take any legal action even if you "steal" my code without proper licensing, so feel free to explore it yourself!
 
 # PyPoRoMOD
 
