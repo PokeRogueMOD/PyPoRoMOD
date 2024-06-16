@@ -322,6 +322,11 @@ class PokeRogueAPI:
             logger.exception(e)
             return None
 
+    @staticmethod
+    def get_timestamp() -> int:
+        """ Returns the current timestamp in millseconds as int. """
+        return int(time.time() * 1000)
+
     def set_trainer(self, trainer: Dict[str, Any], parent) -> bool:
         """
         Updates trainer data on the API.
@@ -340,7 +345,7 @@ class PokeRogueAPI:
         try:
             verify = self._verify()
             if verify.get("valid", False):
-                trainer["timestamp"] = int(time.time() * 1000)
+                trainer["timestamp"] = self.get_timestamp()
                 # session = parent.slots[self.last_session_slot]
                 # new_data = {
                 #     "system": trainer,
@@ -480,6 +485,8 @@ class PokeRogueAPI:
             if self.trainer_id is None or self.secret_id is None:
                 # To update the trainer and secret id.
                 self.get_trainer()
+                
+            data["timestamp"] = self.get_timestamp()
 
             response = self.post(
                 "savedata/update",

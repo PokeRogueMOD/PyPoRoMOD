@@ -7,5 +7,5 @@ class JSBigInt(JSNumber):
     """
 
     _MAX: int = (2**53) - 1
-    _SAVE: int = (2**52) - 1
-    _MIN: int = 0
+    _SAVE: int = 2**52
+    _MIN: int = -(2**53)

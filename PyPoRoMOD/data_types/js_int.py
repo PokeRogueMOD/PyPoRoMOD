@@ -9,5 +9,5 @@ class JSInt(JSNumber):
     """
 
     _MAX: int = (2**31) - 1
-    _SAVE: int = (2**30) - 1
-    _MIN: int = 0
+    _SAVE: int = 2**30
+    _MIN: int = -(2**31)

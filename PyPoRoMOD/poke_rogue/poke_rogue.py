@@ -344,9 +344,10 @@ class PokeRogue:
         try:
             for i, slot in enumerate(self.slots.values()):
                 if slot is not None:
-                    with open(trainer_dir / f"slot {i + 1}.json", "w") as f:
+                    slot_counter = i + 1
+                    with open(trainer_dir / f"slot {slot_counter}.json", "w") as f:
                         f.write(json.dumps(slot, indent=4))
-                        saved_slots.append(str(i + 1))
+                        saved_slots.append(str(slot_counter))
 
             if len(saved_slots) == 0:
                 logger.info("No gamesave data to download!")
@@ -371,13 +372,13 @@ class PokeRogue:
                             json_data = json.load(f)
                             self.api.set_slot(i, json_data)
 
-                            uploaded_slots.append(str(slot_counter + 1))
+                            uploaded_slots.append(str(slot_counter))
 
             if len(uploaded_slots) == 0:
                 logger.info("No slots to upload, download them first.")
             else:
                 file_str = f"slot [{', '.join(uploaded_slots)}].json"
-                logger.info(f"Downloaded gamesave data -> {trainer_dir / file_str}")
+                logger.info(f"Uploaded gamesave data -> {trainer_dir / file_str}")
 
         except Exception as e:
             logger.exception(e)
