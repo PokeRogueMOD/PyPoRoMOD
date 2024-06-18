@@ -36,6 +36,8 @@ Welcome to the PyPoRoMOD! This project aims to analyze and modify the account an
     - [ ]   Automaticly unlock accounts.
     - [ ]   Edit slots (Add items, change pokemon level, enemys, etc.)
 
+## [Discord Server](https://discord.gg/rsNPUcbrPT)
+
 ## [Video Tutorial](https://youtu.be/nYmoTRMg2-Y)
 
 [![Video Tutorial](./resources/thumbnail.png)](https://youtu.be/nYmoTRMg2-Y)
