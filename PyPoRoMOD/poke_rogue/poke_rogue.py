@@ -13,6 +13,7 @@ from PyPoRoMOD.enum import (
     Species,
     Unlockables,
     VoucherType,
+    speciesEggMoves,
 )
 
 from .mod import EggTier, GachaType, generate_eggs
@@ -231,16 +232,20 @@ class PokeRogue:
 
 
                 """
-
+                moveset = (
+                    [e.value for e in speciesEggMoves[s]]
+                    if s in speciesEggMoves
+                    else None
+                )
                 starter_data[dex_id] = {
-                    "moveset": None,
+                    "moveset": moveset,
                     "eggMoves": JSInt._MAX,
                     "candyCount": JSInt(caught + random.randint(99, 999)).value,
                     "friendship": JSInt._MAX,
                     "abilityAttr": JSInt._MAX,
                     "passiveAttr": 0 if dex_id in self.NO_PASSIVE else 3,
-                    "valueReduction": 2,
-                    "classicWinCount": 0,
+                    "valueReduction": 10,
+                    "classicWinCount": 1,
                 }
 
             game_stats["battles"] = JSInt(
