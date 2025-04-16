@@ -4,9 +4,9 @@
 > **The content of this repo is a proof of concept and is for educational purposes only!**
 
 > [!CAUTION]
-> This tool works, but since the game devs expcilite say its not allowed to use the API externally, I will not use the tool myself anymore. But I will use [my MOD overlay `JsPoRoMOD`](https://github.com/PokeRogueMOD/JsPoRoMOD), which does not use the API, but the game object in your browser instead. This is harder to do since its not just editing json, but since mods where not mentioned i will go this route. You can still use this tool at your own risk, but I will only try to fix it if it breaks, so create an issue in that case. I will probably not notice this myself because I am trying to implement all account modification features in the overlay instead and have already implemented the most important features I need and want, besides `.json` import / export!
+> This tool **is currently not working** and is no longer actively used or maintained by me.
 > 
-> **This tool can cause your account to be flagged, I have had no problems so far, but be warned, you can read about it [here](https://www.reddit.com/r/pokerogue/comments/1d8ldlw/a_cheating_and_account_deletionwipe_followup/)!**
+> The game developers have explicitly stated that using the API externally is **not allowed**, so I’ve decided to stop using this tool myself. Instead, I now use [my MOD overlay `JsPoRoMOD`](https://github.com/PokeRogueMOD/JsPoRoMOD), which **does not use the API**. It interacts directly with the in-browser game object. This method is more complex (it’s not just editing JSON), but since mods were not explicitly forbidden, I’ve chosen to go this route.
 >
 > _Remember to be alert at all times. Stay aware of your surroundings._
 

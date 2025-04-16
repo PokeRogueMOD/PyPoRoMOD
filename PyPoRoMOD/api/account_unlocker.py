@@ -67,8 +67,8 @@ class AccountUnlocker:
             Dict[str, object]: A dictionary containing the new trainer's attributes.
         """
         data = {
-            "trainerId": cls.rand_int(65536),
-            "secretId": cls.rand_int(65536),
+            "trainerId": cls.rand_int(65536, 1),
+            "secretId": cls.rand_int(65536, 1),
             "gender": PlayerGender.FEMALE.value,
             "dexData": cls.init_dex_data(),
             "starterData": cls.init_starter_data(),
